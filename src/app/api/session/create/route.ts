@@ -18,6 +18,11 @@ export async function POST(req: Request) {
       return badRequest('nameA と nameB は必須です')
     }
 
+    const validCategories: Category[] = ['friends', 'couple', 'married', 'other']
+    if (category && !validCategories.includes(category)) {
+      return badRequest('category は friends, couple, married, other のいずれかを指定してください')
+    }
+
     const nameAResult = validateName(nameA)
     if (!nameAResult.valid) {
       return badRequest(nameAResult.error)

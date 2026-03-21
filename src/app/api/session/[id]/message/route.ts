@@ -31,6 +31,14 @@ export async function POST(
       return badRequest('speaker と content は必須です')
     }
 
+    if (speaker === 'AI') {
+      return badRequest('AI の発言はサーバーからのみ追加できます')
+    }
+
+    if (speaker !== 'A' && speaker !== 'B') {
+      return badRequest('speaker は A または B を指定してください')
+    }
+
     const msgResult = validateMessage(content)
     if (!msgResult.valid) {
       return badRequest(msgResult.error)

@@ -1244,3 +1244,34 @@ Task 1 (スキャフォールド)
 - Task 3, 4 は Task 2 完了後に並列実行可能
 - Task 6, 7 は依存が揃い次第に並列実行可能
 - Task 9 の UIは Task 8 完了後すぐ着手可能（APIモック可）
+
+---
+
+## Next ToDo（後続フェーズ・MVP完成後に別プランとして作成）
+
+### Phase 2: 音声入力対応
+- OpenAI Realtime API 統合（意見聴取フェーズを音声化）
+- WebRTC接続管理（バックエンド経由トークン発行）
+- 音声/テキスト切替UIの実装
+- 対話画面への音声入力ボタン追加
+- Realtime API の `response.audio_transcript` をメッセージ保存に接続
+- フォールバック: Web Speech API（Realtime API 障害時）
+
+### Phase 3: Mobile対応（Expo/React Native）
+- Expo プロジェクトセットアップ
+- 共通ロジックの切り出し（types, store, API client）
+- React Native UIコンポーネント群の実装
+- Expo での音声入力対応（Realtime API + ネイティブSTTフォールバック）
+- App Store / Google Play 申請準備
+
+### Phase 4: マルチデバイス対応
+- WebSocket によるセッションリアルタイム同期
+- QRコード/リンクでのセッション参加機能
+- ルーム管理（参加者の接続状態管理）
+- ターン制御のサーバーサイド化（クライアント任せから移行）
+
+### Phase 5: 拡張機能
+- ユーザー認証（Google/Apple ログイン）+ クラウド履歴保存
+- 多言語対応（i18n）
+- 感情分析（音声トーンからの怒り度検出）
+- LLMモデル切り替え（Claude API等）

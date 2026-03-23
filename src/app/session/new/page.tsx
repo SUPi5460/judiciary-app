@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 
 import { useSessionStore } from '@/store/session-store'
-import type { Category } from '@/types/session'
+import type { Category, SessionMode } from '@/types/session'
 
 const categories: { value: Category; label: string }[] = [
   { value: 'friends', label: '友人' },
@@ -20,6 +20,7 @@ export default function SessionNewPage() {
   const [nameA, setNameA] = useState('')
   const [nameB, setNameB] = useState('')
   const [category, setCategory] = useState<Category | undefined>(undefined)
+  const [mode, setMode] = useState<SessionMode>('single')
   const [errors, setErrors] = useState<{ nameA?: string; nameB?: string }>({})
 
   const validate = (): boolean => {
@@ -38,13 +39,17 @@ export default function SessionNewPage() {
     e.preventDefault()
     if (!validate()) return
 
-    await createSession(nameA.trim(), nameB.trim(), category)
+    await createSession(nameA.trim(), nameB.trim(), category, mode)
 
     // After createSession, the store should have the session with its id.
     // We need to read it from the store after the await.
     const currentSession = useSessionStore.getState().session
     if (currentSession) {
-      router.push(`/session/${currentSession.id}`)
+      if (mode === 'multi') {
+        router.push(`/session/${currentSession.id}/waiting`)
+      } else {
+        router.push(`/session/${currentSession.id}`)
+      }
     }
   }
 
@@ -84,6 +89,37 @@ export default function SessionNewPage() {
                   {cat.label}
                 </button>
               ))}
+            </div>
+          </fieldset>
+
+          {/* Mode selection */}
+          <fieldset className="flex flex-col gap-2">
+            <legend className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+              利用モード
+            </legend>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setMode('single')}
+                className={`flex-1 rounded-lg border px-4 py-3 text-sm font-medium transition-colors ${
+                  mode === 'single'
+                    ? 'border-blue-600 bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
+                    : 'border-zinc-300 bg-white text-zinc-700 hover:border-blue-400 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-300'
+                }`}
+              >
+                1台で使う（今まで通り）
+              </button>
+              <button
+                type="button"
+                onClick={() => setMode('multi')}
+                className={`flex-1 rounded-lg border px-4 py-3 text-sm font-medium transition-colors ${
+                  mode === 'multi'
+                    ? 'border-blue-600 bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
+                    : 'border-zinc-300 bg-white text-zinc-700 hover:border-blue-400 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-300'
+                }`}
+              >
+                別々のデバイスで使う
+              </button>
             </div>
           </fieldset>
 

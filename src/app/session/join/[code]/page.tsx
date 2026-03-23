@@ -19,6 +19,13 @@ const categoryLabels: Record<string, string> = {
   other: 'その他',
 }
 
+const categoryIcons: Record<string, string> = {
+  friends: '👫',
+  couple: '💑',
+  married: '💍',
+  other: '💬',
+}
+
 export default function JoinPage() {
   const params = useParams()
   const router = useRouter()
@@ -78,20 +85,20 @@ export default function JoinPage() {
 
   if (isFetching) {
     return (
-      <div className="flex h-screen items-center justify-center bg-zinc-50 dark:bg-black">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
+      <div className="flex h-screen items-center justify-center bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-zinc-900 dark:to-zinc-950">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-indigo-500 border-t-transparent" />
       </div>
     )
   }
 
   if (fetchError) {
     return (
-      <div className="flex h-screen flex-col items-center justify-center gap-4 bg-zinc-50 px-6 dark:bg-black">
+      <div className="flex h-screen flex-col items-center justify-center gap-4 bg-gradient-to-br from-indigo-50 to-purple-50 px-6 dark:from-zinc-900 dark:to-zinc-950">
         <p className="text-lg font-semibold text-red-500">{fetchError}</p>
         <button
           type="button"
           onClick={() => router.push('/')}
-          className="rounded-lg bg-zinc-200 px-4 py-2 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-300 dark:bg-zinc-700 dark:text-zinc-300"
+          className="rounded-xl bg-zinc-200 px-5 py-2.5 text-sm font-medium text-zinc-700 transition-all duration-200 hover:bg-zinc-300 hover:shadow-sm dark:bg-zinc-700 dark:text-zinc-300"
         >
           ホームに戻る
         </button>
@@ -102,38 +109,42 @@ export default function JoinPage() {
   if (!sessionInfo) return null
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-zinc-50 px-6 dark:bg-black">
-      <div className="flex w-full max-w-sm flex-col items-center gap-6">
-        {/* Icon */}
-        <div className="text-5xl">⚖️</div>
+    <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-indigo-50 to-purple-50 px-6 dark:from-zinc-900 dark:to-zinc-950">
+      <div className="flex w-full max-w-sm flex-col items-center gap-6 animate-fade-in">
+        {/* Invitation card */}
+        <div className="w-full rounded-2xl border-2 border-indigo-200 bg-white p-8 shadow-xl text-center dark:border-indigo-800 dark:bg-zinc-900">
+          {/* Icon */}
+          <div className="text-5xl mb-4 animate-float">{'⚖️'}</div>
 
-        {/* Title */}
-        <h1 className="text-xl font-bold text-zinc-900 dark:text-zinc-50">
-          仲裁への招待
-        </h1>
+          {/* Title */}
+          <h1 className="text-xl font-extrabold text-zinc-900 dark:text-zinc-50">
+            仲裁への招待
+          </h1>
 
-        {/* Invitation message */}
-        <p className="text-center text-zinc-600 dark:text-zinc-400">
-          {sessionInfo.nameA}さんがあなたを仲裁に招待しています
-        </p>
-
-        {/* Category badge */}
-        {sessionInfo.category && (
-          <span className="rounded-full border border-zinc-300 bg-white px-3 py-1 text-sm font-medium text-zinc-600 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">
-            {categoryLabels[sessionInfo.category] || sessionInfo.category}
-          </span>
-        )}
-
-        {/* Role assignment */}
-        <div className="w-full rounded-lg bg-blue-50 px-4 py-3 text-center dark:bg-blue-900/20">
-          <p className="text-sm text-blue-700 dark:text-blue-300">
-            あなたは「{sessionInfo.nameB}」として参加します
+          {/* Invitation message */}
+          <p className="mt-3 text-zinc-600 dark:text-zinc-400">
+            <span className="font-semibold text-indigo-600 dark:text-indigo-400">{sessionInfo.nameA}</span>さんがあなたを仲裁に招待しています
           </p>
+
+          {/* Category badge */}
+          {sessionInfo.category && (
+            <div className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-indigo-200 bg-indigo-50 px-4 py-1.5 text-sm font-medium text-indigo-600 dark:border-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400">
+              <span>{categoryIcons[sessionInfo.category] || '💬'}</span>
+              {categoryLabels[sessionInfo.category] || sessionInfo.category}
+            </div>
+          )}
+
+          {/* Role assignment */}
+          <div className="mt-5 rounded-xl bg-gradient-to-r from-indigo-50 to-purple-50 px-4 py-3 dark:from-indigo-900/20 dark:to-purple-900/20">
+            <p className="text-sm font-medium text-indigo-700 dark:text-indigo-300">
+              あなたは「<span className="font-bold">{sessionInfo.nameB}</span>」として参加します
+            </p>
+          </div>
         </div>
 
         {/* Error */}
         {error && (
-          <p className="w-full rounded-lg bg-red-50 px-3 py-2 text-center text-sm text-red-600 dark:bg-red-900/20 dark:text-red-400">
+          <p className="w-full rounded-xl bg-red-50 px-4 py-3 text-center text-sm text-red-600 dark:bg-red-900/20 dark:text-red-400">
             {error === 'Already joined' ? '既に参加済みです' : error}
           </p>
         )}
@@ -143,7 +154,7 @@ export default function JoinPage() {
           type="button"
           onClick={handleJoin}
           disabled={isJoining || isLoading}
-          className="w-full rounded-full bg-blue-600 px-6 py-3 text-base font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+          className="w-full rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-3.5 text-base font-bold text-white shadow-lg shadow-indigo-500/25 transition-all duration-200 hover:scale-[1.02] hover:shadow-xl hover:shadow-indigo-500/30 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
         >
           {isJoining || isLoading ? (
             <span className="flex items-center justify-center gap-2">

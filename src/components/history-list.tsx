@@ -53,15 +53,15 @@ export function HistoryList() {
 
   if (history.length === 0) {
     return (
-      <div className="w-full text-center py-8 text-zinc-400">
+      <div className="w-full text-center py-8 text-zinc-400 dark:text-zinc-500">
         まだ仲裁履歴がありません
       </div>
     )
   }
 
   return (
-    <div className="w-full space-y-3">
-      <h2 className="text-sm font-semibold text-zinc-500 uppercase tracking-wider">
+    <div className="w-full space-y-4">
+      <h2 className="text-xs font-bold text-zinc-400 uppercase tracking-widest dark:text-zinc-500">
         過去の仲裁
       </h2>
       <ul className="space-y-2">
@@ -69,21 +69,26 @@ export function HistoryList() {
           <li key={entry.id ?? index}>
             <Link
               href={`/session/${entry.id}/result`}
-              className="flex items-center justify-between rounded-lg border border-zinc-200 bg-white px-4 py-3 transition-colors hover:border-blue-300 hover:bg-blue-50 dark:border-zinc-700 dark:bg-zinc-900 dark:hover:border-blue-600 dark:hover:bg-zinc-800"
+              className="group flex items-center justify-between rounded-xl border border-zinc-200 bg-white px-4 py-3.5 shadow-sm transition-all duration-200 hover:border-indigo-300 hover:shadow-md hover:bg-indigo-50/50 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-indigo-700 dark:hover:bg-zinc-800"
             >
               <div className="flex flex-col gap-0.5">
-                <span className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                <span className="text-sm font-semibold text-zinc-800 group-hover:text-indigo-700 transition-colors dark:text-zinc-100 dark:group-hover:text-indigo-400">
                   {entry.topic ?? `${entry.nameA} vs ${entry.nameB}`}
                 </span>
-                <span className="text-xs text-zinc-400">
+                <span className="text-xs text-zinc-400 dark:text-zinc-500">
                   {entry.nameA} vs {entry.nameB} ・ {new Date(entry.date).toLocaleDateString('ja-JP')}
                 </span>
               </div>
-              {entry.category && (
-                <span className="rounded-full bg-zinc-100 px-2.5 py-0.5 text-xs font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">
-                  {categoryLabels[entry.category] ?? entry.category}
+              <div className="flex items-center gap-2">
+                {entry.category && (
+                  <span className="rounded-full bg-zinc-100 px-2.5 py-0.5 text-xs font-medium text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400">
+                    {categoryLabels[entry.category] ?? entry.category}
+                  </span>
+                )}
+                <span className="text-zinc-300 group-hover:text-indigo-400 transition-colors dark:text-zinc-600">
+                  →
                 </span>
-              )}
+              </div>
             </Link>
           </li>
         ))}

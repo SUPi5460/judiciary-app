@@ -47,6 +47,17 @@ export default function Home() {
       <div className="w-full max-w-lg px-6 py-10">
         <HistoryList />
       </div>
+
+      {/* Footer */}
+      <footer className="w-full pb-8 pt-4 text-center text-xs text-zinc-400 dark:text-zinc-500">
+        <Link href="/privacy" className="hover:text-zinc-600 dark:hover:text-zinc-300">
+          プライバシーポリシー
+        </Link>
+        <span className="mx-2">|</span>
+        <Link href="/terms" className="hover:text-zinc-600 dark:hover:text-zinc-300">
+          利用規約
+        </Link>
+      </footer>
     </div>
   )
 }

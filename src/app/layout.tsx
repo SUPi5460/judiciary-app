@@ -20,8 +20,24 @@ const libreBaskerville = Libre_Baskerville({
 });
 
 export const metadata: Metadata = {
-  title: "JudgeMate - 喧嘩の仲裁アプリ",
+  title: {
+    default: "JudgeMate - 喧嘩の仲裁AI",
+    template: "%s | JudgeMate",
+  },
   description: "友人・カップル・夫婦間の喧嘩をAIが公平に仲裁。論点を整理し、解決策を提案します。",
+  keywords: ["AI", "仲裁", "喧嘩", "カップル", "夫婦", "友人", "解決", "判定"],
+  openGraph: {
+    type: "website",
+    locale: "ja_JP",
+    siteName: "JudgeMate",
+    title: "JudgeMate - 喧嘩の仲裁AI",
+    description: "友人・カップル・夫婦間の喧嘩をAIが公平に仲裁。論点を整理し、解決策を提案します。",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "JudgeMate - 喧嘩の仲裁AI",
+    description: "友人・カップル・夫婦間の喧嘩をAIが公平に仲裁。",
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",

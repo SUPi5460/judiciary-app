@@ -4,10 +4,15 @@ import { ShareReportClient } from './client'
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
-    title: 'JudgeMate - 仲裁レポート',
-    description: 'JudgeMateによる仲裁結果レポート',
+    title: '仲裁レポート',
+    description: 'JudgeMateによるAI仲裁結果レポート。論点を整理し、公平に判定しました。',
     openGraph: {
-      title: 'JudgeMate - 仲裁レポート',
+      title: '仲裁レポート | JudgeMate',
+      description: 'AIが公平に仲裁した結果をチェック！',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: '仲裁レポート | JudgeMate',
       description: 'AIが公平に仲裁した結果をチェック！',
     },
   }

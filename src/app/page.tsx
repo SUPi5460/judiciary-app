@@ -7,6 +7,24 @@ import { HistoryList } from '@/components/history-list'
 export default function Home() {
   return (
     <div className="flex min-h-full flex-col items-center font-sans">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebApplication",
+            "name": "JudgeMate",
+            "description": "友人・カップル・夫婦間の喧嘩をAIが公平に仲裁するアプリ",
+            "applicationCategory": "UtilitiesApplication",
+            "operatingSystem": "Web",
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "JPY"
+            }
+          })
+        }}
+      />
       {/* Hero Section with Gradient */}
       <div className="relative w-full overflow-hidden bg-gradient-to-br from-indigo-600 via-purple-600 to-indigo-800 dark:from-indigo-900 dark:via-purple-900 dark:to-indigo-950">
         {/* Subtle grid overlay */}

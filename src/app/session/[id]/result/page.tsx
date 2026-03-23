@@ -94,6 +94,24 @@ export default function ResultPage() {
     )
   }
 
+  if (!isLoading && !session) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-zinc-50">
+        <div className="text-center space-y-4 max-w-md px-4">
+          <div className="text-4xl">📋</div>
+          <p className="text-zinc-600 font-medium">セッションが見つかりません</p>
+          <p className="text-sm text-zinc-400">セッションの有効期限が切れたか、サーバーが再起動された可能性があります</p>
+          <button
+            onClick={() => router.push('/')}
+            className="mt-4 px-6 py-2 bg-zinc-800 text-white rounded-lg text-sm hover:bg-zinc-700 transition-colors"
+          >
+            ホームへ戻る
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   if (!session?.judgment) {
     return null
   }

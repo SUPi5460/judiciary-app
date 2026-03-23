@@ -14,6 +14,7 @@ interface SessionState {
   finalize: () => Promise<void>
   requestJudgment: () => Promise<void>
   generateShareLink: () => Promise<string | null>
+  reopenSession: () => Promise<void>
   loadSession: (id: string) => Promise<void>
   reset: () => void
 }
@@ -148,12 +149,17 @@ export const useSessionStore = create<SessionState>((set, get) => ({
       const updatedSession = await fetchJson<Session>(`/api/session/${session.id}`)
       set({ session: updatedSession })
 
+      const topic = updatedSession.judgment?.issues
+        ?.map((i: { issue: string }) => i.issue)
+        .join('、') ?? null
+
       const history = JSON.parse(localStorage.getItem('judiciary-history') || '[]')
       history.unshift({
         id: updatedSession.id,
         nameA: updatedSession.nameA,
         nameB: updatedSession.nameB,
         category: updatedSession.category,
+        topic,
         date: new Date().toISOString(),
       })
       localStorage.setItem('judiciary-history', JSON.stringify(history.slice(0, 20)))
@@ -179,6 +185,24 @@ export const useSessionStore = create<SessionState>((set, get) => ({
     } catch (error) {
       set({ error: error instanceof Error ? error.message : 'Failed to generate share link' })
       return null
+    } finally {
+      set({ isLoading: false })
+    }
+  },
+
+  reopenSession: async () => {
+    set({ isLoading: true, error: null })
+    try {
+      const { session } = get()
+      if (!session) return
+      await fetchJson<{ status: string }>(
+        `/api/session/${session.id}/reopen`,
+        { method: 'POST' },
+      )
+      const updatedSession = await fetchJson<Session>(`/api/session/${session.id}`)
+      set({ session: updatedSession })
+    } catch (error) {
+      set({ error: error instanceof Error ? error.message : 'Failed to reopen session' })
     } finally {
       set({ isLoading: false })
     }

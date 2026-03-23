@@ -12,7 +12,7 @@ export default function ResultPage() {
   const router = useRouter()
   const id = params.id as string
 
-  const { session, isLoading, error, loadSession, requestJudgment, generateShareLink } =
+  const { session, isLoading, error, loadSession, requestJudgment, generateShareLink, reopenSession } =
     useSessionStore()
 
   const [shareLoading, setShareLoading] = useState(false)
@@ -125,19 +125,30 @@ export default function ResultPage() {
 
         <ResolutionCard resolution={judgment.resolution} />
 
-        <div className="flex gap-3 pt-4">
+        <div className="flex flex-col gap-3 pt-4">
+          <div className="flex gap-3">
+            <button
+              onClick={handleShare}
+              disabled={shareLoading}
+              className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-xl font-medium text-sm hover:bg-blue-500 transition-colors disabled:opacity-50"
+            >
+              {shareLoading ? '共有中...' : '📤 結果を共有'}
+            </button>
+            <button
+              onClick={() => router.push('/')}
+              className="flex-1 px-6 py-3 bg-zinc-800 text-white rounded-xl font-medium text-sm hover:bg-zinc-700 transition-colors"
+            >
+              {'🏠'} ホームへ
+            </button>
+          </div>
           <button
-            onClick={handleShare}
-            disabled={shareLoading}
-            className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-xl font-medium text-sm hover:bg-blue-500 transition-colors disabled:opacity-50"
+            onClick={async () => {
+              await reopenSession()
+              router.push(`/session/${id}`)
+            }}
+            className="w-full px-6 py-3 border-2 border-amber-500 text-amber-600 rounded-xl font-medium text-sm hover:bg-amber-50 transition-colors"
           >
-            {shareLoading ? '共有中...' : '📤 結果を共有'}
-          </button>
-          <button
-            onClick={() => router.push('/')}
-            className="flex-1 px-6 py-3 bg-zinc-800 text-white rounded-xl font-medium text-sm hover:bg-zinc-700 transition-colors"
-          >
-            {'🏠'} ホームへ
+            🔄 議論を再開して再判定する
           </button>
         </div>
       </div>

@@ -67,26 +67,30 @@ export function ChatView({
           <div ref={bottomRef} />
         </div>
       </div>
-      <div className="sticky bottom-0 flex flex-col gap-2 bg-white p-4 shadow-inner dark:bg-zinc-900">
+      <div className="sticky bottom-0 flex flex-col gap-2 bg-white p-4 shadow-inner dark:bg-zinc-800">
         <TextInput
           onSend={onSendMessage}
           isLoading={isLoading}
           currentSpeakerName={currentSpeakerName}
         />
-        <div className="flex flex-wrap gap-2">
+        <div className="flex gap-2">
           <button
             type="button"
             onClick={onSwitchSpeaker}
-            className="rounded-lg border px-4 py-2"
+            className={`flex-1 rounded-lg px-4 py-2.5 text-sm font-medium text-white transition-colors ${
+              currentSpeaker === 'A'
+                ? 'bg-red-500 hover:bg-red-600'
+                : 'bg-blue-500 hover:bg-blue-600'
+            }`}
             disabled={isLoading}
           >
-            交代する → {otherSpeakerName}さんへ
+            {otherSpeakerName}さんに交代
           </button>
           {canFinalize && (
             <button
               type="button"
               onClick={onFinalize}
-              className="rounded-lg bg-green-600 px-4 py-2 text-white"
+              className="flex-1 rounded-lg bg-green-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-green-700 transition-colors"
               disabled={isLoading}
             >
               判定に進む

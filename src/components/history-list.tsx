@@ -8,6 +8,7 @@ interface HistoryEntry {
   nameA: string
   nameB: string
   category: string | null
+  topic: string | null
   date: string
 }
 
@@ -60,10 +61,10 @@ export function HistoryList() {
             >
               <div className="flex flex-col gap-0.5">
                 <span className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-                  {entry.nameA} vs {entry.nameB}
+                  {entry.topic ?? `${entry.nameA} vs ${entry.nameB}`}
                 </span>
                 <span className="text-xs text-zinc-400">
-                  {new Date(entry.date).toLocaleDateString('ja-JP')}
+                  {entry.nameA} vs {entry.nameB} ・ {new Date(entry.date).toLocaleDateString('ja-JP')}
                 </span>
               </div>
               {entry.category && (

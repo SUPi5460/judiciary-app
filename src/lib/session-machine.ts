@@ -1,12 +1,12 @@
 import { SessionStatus } from '@/types/session'
 
-export type SessionAction = 'finalize' | 'start_judge' | 'complete_judge'
+export type SessionAction = 'finalize' | 'start_judge' | 'complete_judge' | 'reopen'
 
 const transitions: Record<SessionStatus, Partial<Record<SessionAction, SessionStatus>>> = {
   gathering: { finalize: 'ready_for_judge' },
   ready_for_judge: { start_judge: 'judging' },
   judging: { complete_judge: 'judged' },
-  judged: {},
+  judged: { reopen: 'gathering' },
 }
 
 export function transition(current: SessionStatus, action: SessionAction): SessionStatus {

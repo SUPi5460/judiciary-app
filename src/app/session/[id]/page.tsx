@@ -1,0 +1,135 @@
+'use client'
+
+import { useEffect, useMemo, useRef, useState } from 'react'
+import Link from 'next/link'
+import { useParams, useRouter } from 'next/navigation'
+import { ChatView } from '@/components/chat-view'
+import { useSessionStore } from '@/store/session-store'
+
+const formatElapsed = (totalSeconds: number) => {
+  const minutes = Math.floor(totalSeconds / 60)
+  const seconds = totalSeconds % 60
+  return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
+}
+
+export default function SessionPage() {
+  const params = useParams()
+  const router = useRouter()
+  const [elapsedSeconds, setElapsedSeconds] = useState(0)
+  const hasPromptedRef = useRef(false)
+
+  const {
+    session,
+    currentSpeaker,
+    isLoading,
+    error,
+    loadSession,
+    addMessage,
+    switchSpeaker,
+    finalize,
+  } = useSessionStore()
+
+  const sessionId = useMemo(() => {
+    const idParam = params?.id
+    if (Array.isArray(idParam)) {
+      return idParam[0]
+    }
+    return idParam
+  }, [params])
+
+  useEffect(() => {
+    if (sessionId) {
+      loadSession(sessionId)
+    }
+  }, [loadSession, sessionId])
+
+  useEffect(() => {
+    if (!session?.createdAt) {
+      return
+    }
+
+    const createdAt = new Date(session.createdAt).getTime()
+    const tick = () => {
+      const now = Date.now()
+      const diffSeconds = Math.max(0, Math.floor((now - createdAt) / 1000))
+      setElapsedSeconds(diffSeconds)
+    }
+
+    tick()
+    const intervalId = window.setInterval(tick, 1000)
+    return () => window.clearInterval(intervalId)
+  }, [session?.createdAt])
+
+  useEffect(() => {
+    if (!session || hasPromptedRef.current) {
+      return
+    }
+
+    if (elapsedSeconds >= 900) {
+      hasPromptedRef.current = true
+      const confirmed = window.confirm('15分経過しました。判定に進みますか？')
+      if (confirmed) {
+        finalize()
+      }
+    }
+  }, [elapsedSeconds, finalize, session])
+
+  const handleFinalize = async () => {
+    if (!sessionId) {
+      return
+    }
+    await finalize()
+    router.push(`/session/${sessionId}/result`)
+  }
+
+  if (isLoading && !session) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="flex h-screen items-center justify-center text-red-500">
+        {error}
+      </div>
+    )
+  }
+
+  if (!isLoading && !session) {
+    return (
+      <div className="flex h-screen items-center justify-center text-zinc-500">
+        セッションが見つかりません
+      </div>
+    )
+  }
+
+  if (!session) {
+    return null
+  }
+
+  return (
+    <div className="flex h-screen flex-col">
+      <header className="flex items-center justify-between border-b px-4 py-3">
+        <Link href="/" className="text-sm text-blue-600">
+          ← 戻る
+        </Link>
+        <span className="text-sm font-semibold text-zinc-600">
+          {formatElapsed(elapsedSeconds)}
+        </span>
+      </header>
+      <div className="flex-1 overflow-hidden">
+        <ChatView
+          session={session}
+          currentSpeaker={currentSpeaker}
+          isLoading={isLoading}
+          onSendMessage={addMessage}
+          onSwitchSpeaker={switchSpeaker}
+          onFinalize={handleFinalize}
+        />
+      </div>
+    </div>
+  )
+}

@@ -34,13 +34,10 @@ export async function POST(req: NextRequest) {
           model: 'gpt-realtime',
           instructions,
           audio: {
+            input: {
+              transcription: { model: 'gpt-4o-mini-transcribe' },
+            },
             output: { voice: 'marin' },
-          },
-          input_audio_transcription: {
-            model: 'gpt-4o-mini-transcribe',
-          },
-          turn_detection: {
-            type: 'semantic_vad',
           },
         },
       }),

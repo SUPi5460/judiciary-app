@@ -39,10 +39,10 @@ export function ChatView({
   const otherSpeakerName =
     currentSpeaker === 'A' ? session.nameB : session.nameA
 
-  const hasSpokenA = session.messages.some(
+  const hasSpokenA = messages.some(
     (message: Message) => message.speaker === 'A'
   )
-  const hasSpokenB = session.messages.some(
+  const hasSpokenB = messages.some(
     (message: Message) => message.speaker === 'B'
   )
   const canFinalize = hasSpokenA && hasSpokenB
@@ -56,7 +56,7 @@ export function ChatView({
       />
       <div className="flex-1 overflow-y-auto p-4">
         <div className="flex flex-col gap-3">
-          {session.messages.map((message) => (
+          {messages.map((message) => (
             <MessageBubble
               key={message.id}
               message={message}

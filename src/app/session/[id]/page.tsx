@@ -98,6 +98,7 @@ export default function SessionPage() {
     }
   }, [elapsedSeconds, finalize, session])
 
+  const [isVoiceMode, setIsVoiceMode] = useState(false)
   const [isJudging, setIsJudging] = useState(false)
 
   const handleFinalize = async () => {
@@ -168,6 +169,9 @@ export default function SessionPage() {
           currentSpeaker={effectiveSpeaker}
           isLoading={isLoading}
           mode={session.mode}
+          isVoiceMode={isVoiceMode}
+          onToggleVoice={() => setIsVoiceMode(v => !v)}
+          sessionId={sessionId!}
           onSendMessage={addMessage}
           onSwitchSpeaker={switchSpeaker}
           onFinalize={handleFinalize}

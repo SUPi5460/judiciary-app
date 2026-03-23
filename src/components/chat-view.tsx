@@ -6,12 +6,16 @@ import type { Session, SessionMode, Speaker } from '@/types/session'
 import { MessageBubble } from '@/components/message-bubble'
 import { SpeakerIndicator } from '@/components/speaker-indicator'
 import { TextInput } from '@/components/text-input'
+import { VoiceCall } from '@/components/voice-call'
 
 interface ChatViewProps {
   session: Session
   currentSpeaker: Speaker
   isLoading: boolean
   mode: SessionMode
+  isVoiceMode: boolean
+  onToggleVoice: () => void
+  sessionId: string
   onSendMessage: (content: string) => void
   onSwitchSpeaker: () => void
   onFinalize: () => void
@@ -22,6 +26,9 @@ export function ChatView({
   currentSpeaker,
   isLoading,
   mode,
+  isVoiceMode,
+  onToggleVoice,
+  sessionId,
   onSendMessage,
   onSwitchSpeaker,
   onFinalize,
@@ -76,11 +83,26 @@ export function ChatView({
         </div>
       </div>
       <div className="sticky bottom-0 flex flex-col gap-2 bg-white p-4 shadow-inner dark:bg-zinc-800">
-        <TextInput
-          onSend={onSendMessage}
-          isLoading={isLoading}
-          currentSpeakerName={currentSpeakerName}
-        />
+        {mode === 'multi' && isVoiceMode ? (
+          <VoiceCall sessionId={sessionId} onSwitchToText={onToggleVoice} />
+        ) : (
+          <>
+            {mode === 'multi' && !isVoiceMode && (
+              <button
+                type="button"
+                onClick={onToggleVoice}
+                className="self-center rounded-lg border border-green-300 px-4 py-2 text-sm font-medium text-green-700 hover:bg-green-50 transition-colors dark:border-green-600 dark:text-green-400 dark:hover:bg-green-900/20"
+              >
+                音声で話す
+              </button>
+            )}
+            <TextInput
+              onSend={onSendMessage}
+              isLoading={isLoading}
+              currentSpeakerName={currentSpeakerName}
+            />
+          </>
+        )}
         <div className="flex gap-2">
           {mode === 'single' && (
             <button

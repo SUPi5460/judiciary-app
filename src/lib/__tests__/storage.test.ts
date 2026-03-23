@@ -1,55 +1,63 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-
-vi.mock('@vercel/kv', () => ({
-  kv: {
-    get: vi.fn(),
-    set: vi.fn(),
-    del: vi.fn(),
-  },
-}))
-
-import { kv } from '@vercel/kv'
+import { describe, it, expect, beforeEach } from 'vitest'
 import { getSession, saveSession, deleteSession, getShareReport, saveShareReport } from '../storage'
+import type { Session } from '@/types/session'
 
-describe('storage', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
+// Tests run against in-memory store (no KV_REST_API_URL set in test env)
+
+const mockSession: Session = {
+  id: 'abc',
+  status: 'gathering',
+  category: 'couple',
+  nameA: '太郎',
+  nameB: '花子',
+  messages: [],
+  summary: null,
+  judgment: null,
+  createdAt: '2026-01-01T00:00:00Z',
+  updatedAt: '2026-01-01T00:00:00Z',
+}
+
+describe('storage (in-memory)', () => {
+  beforeEach(async () => {
+    // Clean up by deleting test keys
+    await deleteSession('abc')
+    await deleteSession('xyz')
   })
 
-  it('getSession fetches with correct key', async () => {
-    const mockSession = { id: 'abc', status: 'gathering' }
-    vi.mocked(kv.get).mockResolvedValue(mockSession)
+  it('saveSession + getSession round-trips correctly', async () => {
+    await saveSession(mockSession)
     const result = await getSession('abc')
-    expect(kv.get).toHaveBeenCalledWith('session:abc')
     expect(result).toEqual(mockSession)
   })
 
   it('getSession returns null for missing session', async () => {
-    vi.mocked(kv.get).mockResolvedValue(null)
     const result = await getSession('nonexistent')
     expect(result).toBeNull()
   })
 
-  it('saveSession stores with correct key and TTL', async () => {
-    const session = { id: 'abc', status: 'gathering' } as any
-    await saveSession(session)
-    expect(kv.set).toHaveBeenCalledWith('session:abc', session, { ex: 86400 })
-  })
-
-  it('deleteSession removes with correct key', async () => {
+  it('deleteSession removes the session', async () => {
+    await saveSession(mockSession)
     await deleteSession('abc')
-    expect(kv.del).toHaveBeenCalledWith('session:abc')
+    const result = await getSession('abc')
+    expect(result).toBeNull()
   })
 
-  it('getShareReport fetches with share prefix', async () => {
-    vi.mocked(kv.get).mockResolvedValue({ id: 'xyz' })
-    await getShareReport('share-id')
-    expect(kv.get).toHaveBeenCalledWith('share:share-id')
+  it('saveShareReport + getShareReport round-trips correctly', async () => {
+    await saveShareReport('share-id', mockSession)
+    const result = await getShareReport('share-id')
+    expect(result).toEqual(mockSession)
   })
 
-  it('saveShareReport stores with share prefix and 7-day TTL', async () => {
-    const session = { id: 'xyz' } as any
-    await saveShareReport('share-id', session)
-    expect(kv.set).toHaveBeenCalledWith('share:share-id', session, { ex: 604800 })
+  it('getShareReport returns null for missing report', async () => {
+    const result = await getShareReport('nonexistent')
+    expect(result).toBeNull()
+  })
+
+  it('saveSession overwrites existing session', async () => {
+    await saveSession(mockSession)
+    const updated = { ...mockSession, status: 'judged' as const }
+    await saveSession(updated)
+    const result = await getSession('abc')
+    expect(result?.status).toBe('judged')
   })
 })

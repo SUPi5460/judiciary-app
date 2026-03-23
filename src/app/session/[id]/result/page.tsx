@@ -66,10 +66,10 @@ export default function ResultPage() {
 
   if (isLoading && !session?.judgment) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-zinc-50">
-        <div className="text-center space-y-4">
-          <div className="text-4xl animate-pulse">{'⚖️'}</div>
-          <p className="text-zinc-600 font-medium">判定中...</p>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-zinc-900 dark:to-zinc-950">
+        <div className="text-center space-y-4 animate-fade-in">
+          <div className="text-5xl animate-float">{'⚖️'}</div>
+          <p className="text-zinc-700 font-semibold text-lg dark:text-zinc-200">判定中...</p>
           <p className="text-sm text-zinc-400">AIが公平に判定しています</p>
         </div>
       </div>
@@ -78,14 +78,14 @@ export default function ResultPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-zinc-50">
-        <div className="text-center space-y-4 max-w-md px-4">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-zinc-900 dark:to-zinc-950">
+        <div className="text-center space-y-4 max-w-md px-4 animate-fade-in">
           <div className="text-4xl">{'⚠️'}</div>
-          <p className="text-red-600 font-medium">エラーが発生しました</p>
-          <p className="text-sm text-zinc-500">{error}</p>
+          <p className="text-red-600 font-semibold dark:text-red-400">エラーが発生しました</p>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">{error}</p>
           <button
             onClick={() => router.push('/')}
-            className="mt-4 px-6 py-2 bg-zinc-800 text-white rounded-lg text-sm hover:bg-zinc-700 transition-colors"
+            className="mt-4 px-6 py-2.5 bg-zinc-800 text-white rounded-xl text-sm font-medium shadow-sm hover:bg-zinc-700 transition-all duration-200 hover:shadow-md dark:bg-zinc-700 dark:hover:bg-zinc-600"
           >
             ホームへ戻る
           </button>
@@ -96,14 +96,14 @@ export default function ResultPage() {
 
   if (!isLoading && !session) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-zinc-50">
-        <div className="text-center space-y-4 max-w-md px-4">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-zinc-900 dark:to-zinc-950">
+        <div className="text-center space-y-4 max-w-md px-4 animate-fade-in">
           <div className="text-4xl">📋</div>
-          <p className="text-zinc-600 font-medium">セッションが見つかりません</p>
+          <p className="text-zinc-700 font-semibold dark:text-zinc-200">セッションが見つかりません</p>
           <p className="text-sm text-zinc-400">セッションの有効期限が切れたか、サーバーが再起動された可能性があります</p>
           <button
             onClick={() => router.push('/')}
-            className="mt-4 px-6 py-2 bg-zinc-800 text-white rounded-lg text-sm hover:bg-zinc-700 transition-colors"
+            className="mt-4 px-6 py-2.5 bg-zinc-800 text-white rounded-xl text-sm font-medium shadow-sm hover:bg-zinc-700 transition-all duration-200 hover:shadow-md dark:bg-zinc-700 dark:hover:bg-zinc-600"
           >
             ホームへ戻る
           </button>
@@ -114,21 +114,21 @@ export default function ResultPage() {
 
   if (!session?.judgment) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-zinc-50">
-        <div className="text-center space-y-4 max-w-md px-4">
-          <div className="text-4xl">⚖️</div>
-          <p className="text-zinc-600 font-medium">判定結果がありません</p>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-zinc-900 dark:to-zinc-950">
+        <div className="text-center space-y-4 max-w-md px-4 animate-fade-in">
+          <div className="text-4xl">{'⚖️'}</div>
+          <p className="text-zinc-700 font-semibold dark:text-zinc-200">判定結果がありません</p>
           <p className="text-sm text-zinc-400">議論を再開したか、まだ判定が完了していません</p>
           <div className="flex gap-3 mt-4">
             <button
               onClick={() => router.push(`/session/${id}`)}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-500 transition-colors"
+              className="px-6 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl text-sm font-medium shadow-sm hover:shadow-md transition-all duration-200"
             >
               議論に戻る
             </button>
             <button
               onClick={() => router.push('/')}
-              className="px-6 py-2 bg-zinc-800 text-white rounded-lg text-sm hover:bg-zinc-700 transition-colors"
+              className="px-6 py-2.5 bg-zinc-800 text-white rounded-xl text-sm font-medium shadow-sm hover:bg-zinc-700 transition-all duration-200 dark:bg-zinc-700"
             >
               ホームへ
             </button>
@@ -141,12 +141,18 @@ export default function ResultPage() {
   const { judgment, nameA, nameB } = session
 
   return (
-    <div className="min-h-screen bg-zinc-50">
+    <div className="min-h-screen bg-gradient-to-br from-zinc-50 to-indigo-50/30 dark:from-zinc-950 dark:to-zinc-900">
       <div className="max-w-2xl mx-auto px-4 py-8 space-y-6">
-        <h1 className="text-2xl font-bold text-center text-zinc-800">
-          {'⚖️'} 判定結果
-        </h1>
+        {/* Header */}
+        <div className="text-center animate-fade-in space-y-2">
+          <div className="text-4xl">{'⚖️'}</div>
+          <h1 className="text-2xl font-extrabold text-zinc-800 dark:text-zinc-100">
+            判定結果
+          </h1>
+          <p className="text-sm text-zinc-400">{nameA} vs {nameB}</p>
+        </div>
 
+        {/* Issue cards */}
         <div className="space-y-4">
           {judgment.issues.map((issue, index) => (
             <JudgmentCard
@@ -161,20 +167,21 @@ export default function ResultPage() {
 
         <ResolutionCard resolution={judgment.resolution} />
 
+        {/* Action buttons */}
         <div className="flex flex-col gap-3 pt-4">
           <div className="flex gap-3">
             <button
               onClick={handleShare}
               disabled={shareLoading}
-              className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-xl font-medium text-sm hover:bg-blue-500 transition-colors disabled:opacity-50"
+              className="flex-1 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-semibold text-sm shadow-md shadow-indigo-500/20 transition-all duration-200 hover:shadow-lg hover:shadow-indigo-500/30 active:scale-[0.98] disabled:opacity-50"
             >
-              {shareLoading ? '共有中...' : '📤 結果を共有'}
+              {shareLoading ? '共有中...' : '結果を共有'}
             </button>
             <button
               onClick={() => router.push('/')}
-              className="flex-1 px-6 py-3 bg-zinc-800 text-white rounded-xl font-medium text-sm hover:bg-zinc-700 transition-colors"
+              className="flex-1 px-6 py-3 bg-zinc-800 text-white rounded-xl font-semibold text-sm shadow-sm transition-all duration-200 hover:bg-zinc-700 hover:shadow-md active:scale-[0.98] dark:bg-zinc-700 dark:hover:bg-zinc-600"
             >
-              {'🏠'} ホームへ
+              ホームへ
             </button>
           </div>
           <button
@@ -182,15 +189,15 @@ export default function ResultPage() {
               await reopenSession()
               router.push(`/session/${id}`)
             }}
-            className="w-full px-6 py-3 border-2 border-amber-500 text-amber-600 rounded-xl font-medium text-sm hover:bg-amber-50 transition-colors"
+            className="w-full px-6 py-3 border-2 border-amber-400 text-amber-600 rounded-xl font-semibold text-sm transition-all duration-200 hover:bg-amber-50 hover:shadow-sm active:scale-[0.98] dark:border-amber-500 dark:text-amber-400 dark:hover:bg-amber-900/10"
           >
-            🔄 議論を再開して再判定する
+            議論を再開して再判定する
           </button>
         </div>
       </div>
 
       {toast && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 px-6 py-3 bg-zinc-800 text-white rounded-xl shadow-lg text-sm animate-fade-in">
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 px-6 py-3 bg-zinc-800 text-white rounded-xl shadow-2xl text-sm animate-fade-in dark:bg-zinc-700">
           {toast}
         </div>
       )}

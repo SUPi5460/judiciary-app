@@ -154,6 +154,7 @@ export const useSessionStore = create<SessionState>((set, get) => ({
         .join('、') ?? null
 
       const history = JSON.parse(localStorage.getItem('judiciary-history') || '[]')
+        .filter((e: { id: string }) => e.id !== updatedSession.id)
       history.unshift({
         id: updatedSession.id,
         nameA: updatedSession.nameA,

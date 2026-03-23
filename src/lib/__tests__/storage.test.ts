@@ -6,6 +6,7 @@ import type { Session } from '@/types/session'
 
 const mockSession: Session = {
   id: 'abc',
+  userId: null,
   status: 'gathering',
   category: 'couple',
   nameA: '太郎',
@@ -13,6 +14,9 @@ const mockSession: Session = {
   messages: [],
   summary: null,
   judgment: null,
+  mode: 'single',
+  joinCode: null,
+  participants: { A: 'joined', B: 'joined' },
   createdAt: '2026-01-01T00:00:00Z',
   updatedAt: '2026-01-01T00:00:00Z',
 }

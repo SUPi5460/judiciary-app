@@ -13,6 +13,16 @@ vi.mock('@/lib/join-code', () => ({
   generateUniqueJoinCode: vi.fn(),
 }))
 
+// Mock next-auth
+vi.mock('next-auth', () => ({
+  getServerSession: vi.fn().mockResolvedValue(null),
+}))
+
+// Mock auth options
+vi.mock('@/auth', () => ({
+  authOptions: {},
+}))
+
 import { getSession, saveSession, saveJoinCodeIndex, getSessionIdByJoinCode } from '@/lib/storage'
 import { generateUniqueJoinCode } from '@/lib/join-code'
 import type { Session } from '@/types/session'
@@ -20,6 +30,7 @@ import type { Session } from '@/types/session'
 function makeSession(overrides: Partial<Session> = {}): Session {
   return {
     id: 'test-id',
+    userId: null,
     status: 'gathering',
     category: 'couple',
     nameA: '太郎',

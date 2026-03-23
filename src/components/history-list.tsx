@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { useSession } from 'next-auth/react'
 
 interface HistoryEntry {
   id: string
@@ -20,6 +21,7 @@ const categoryLabels: Record<string, string> = {
 }
 
 export function HistoryList() {
+  const { data: authSession } = useSession()
   const [history, setHistory] = useState<HistoryEntry[]>([])
   const [mounted, setMounted] = useState(false)
 
@@ -93,6 +95,11 @@ export function HistoryList() {
           </li>
         ))}
       </ul>
+      <p className="text-center text-xs text-zinc-400 dark:text-zinc-500 mt-4">
+        {authSession?.user
+          ? '履歴はクラウドに30日間保存されます'
+          : 'ログインすると履歴がクラウドに保存されます'}
+      </p>
     </div>
   )
 }

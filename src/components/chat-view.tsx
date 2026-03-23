@@ -7,7 +7,7 @@ import { MessageBubble } from '@/components/message-bubble'
 import { SpeakerIndicator } from '@/components/speaker-indicator'
 import { TextInput } from '@/components/text-input'
 import { VoiceCall } from '@/components/voice-call'
-import { FREE_TURN_LIMIT } from '@/lib/constants'
+import { FREE_TURN_LIMIT, AUTH_TURN_LIMIT } from '@/lib/constants'
 
 interface ChatViewProps {
   session: Session
@@ -17,6 +17,7 @@ interface ChatViewProps {
   isVoiceMode: boolean
   onToggleVoice: () => void
   sessionId: string
+  userId: string | null
   onSendMessage: (content: string) => void
   onSwitchSpeaker: () => void
   onFinalize: () => void
@@ -30,6 +31,7 @@ export function ChatView({
   isVoiceMode,
   onToggleVoice,
   sessionId,
+  userId,
   onSendMessage,
   onSwitchSpeaker,
   onFinalize,
@@ -49,8 +51,9 @@ export function ChatView({
   const otherSpeakerName =
     currentSpeaker === 'A' ? session.nameB : session.nameA
 
+  const turnLimit = userId ? AUTH_TURN_LIMIT : FREE_TURN_LIMIT
   const userTurns = messages.filter((m: Message) => m.speaker !== 'AI').length
-  const remainingTurns = Math.max(0, FREE_TURN_LIMIT - userTurns)
+  const remainingTurns = Math.max(0, turnLimit - userTurns)
   const isLimitReached = remainingTurns === 0
 
   const hasSpokenA = messages.some(
@@ -106,7 +109,7 @@ export function ChatView({
                   : 'text-zinc-400 dark:text-zinc-500'
             }`}
           >
-            残り {remainingTurns}/{FREE_TURN_LIMIT}
+            残り {remainingTurns}/{turnLimit}
           </span>
         </div>
 
@@ -123,9 +126,15 @@ export function ChatView({
             >
               判定に進む
             </button>
-            <p className="text-xs text-zinc-400 dark:text-zinc-500">
-              プレミアムプラン準備中
-            </p>
+            {!userId ? (
+              <p className="text-xs text-indigo-500 dark:text-indigo-400">
+                ログインで20ターンに増加
+              </p>
+            ) : (
+              <p className="text-xs text-zinc-400 dark:text-zinc-500">
+                プレミアムプラン準備中
+              </p>
+            )}
           </div>
         ) : (
           <>

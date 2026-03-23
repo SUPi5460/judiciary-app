@@ -56,6 +56,21 @@ export default function LoginPage() {
               Google でログイン
             </button>
 
+            <ul className="mt-5 space-y-2 text-left text-sm text-white/80">
+              <li className="flex items-center gap-2">
+                <span className="text-emerald-400">&#10003;</span>
+                ターン数が10→20に増加
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="text-emerald-400">&#10003;</span>
+                仲裁履歴をクラウドに30日間保存
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="text-emerald-400">&#10003;</span>
+                どのデバイスからでも履歴にアクセス
+              </li>
+            </ul>
+
             <div className="mt-4">
               <Link
                 href="/"

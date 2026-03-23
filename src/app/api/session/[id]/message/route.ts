@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { getSession, saveSession } from '@/lib/storage'
 import { validateMessage, sanitizeInput } from '@/lib/validation'
 import { badRequest, notFound, serverError } from '@/lib/api-error'
-import { FREE_TURN_LIMIT } from '@/lib/constants'
+import { FREE_TURN_LIMIT, AUTH_TURN_LIMIT } from '@/lib/constants'
 import type { Speaker } from '@/types/session'
 
 export async function POST(
@@ -40,8 +40,9 @@ export async function POST(
       return badRequest('speaker は A または B を指定してください')
     }
 
+    const turnLimit = session.userId ? AUTH_TURN_LIMIT : FREE_TURN_LIMIT
     const userTurns = session.messages.filter(m => m.speaker !== 'AI').length
-    if (userTurns >= FREE_TURN_LIMIT) {
+    if (userTurns >= turnLimit) {
       return badRequest('ターン上限に達しました。判定に進んでください。')
     }
 

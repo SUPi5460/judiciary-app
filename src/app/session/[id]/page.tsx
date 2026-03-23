@@ -176,6 +176,7 @@ export default function SessionPage() {
           isVoiceMode={isVoiceMode}
           onToggleVoice={() => setIsVoiceMode(v => !v)}
           sessionId={sessionId!}
+          userId={session.userId}
           onSendMessage={addMessage}
           onSwitchSpeaker={switchSpeaker}
           onFinalize={handleFinalize}

@@ -14,6 +14,16 @@ vi.mock('@/lib/join-code', () => ({
   generateUniqueJoinCode: vi.fn().mockResolvedValue(null),
 }))
 
+// Mock next-auth
+vi.mock('next-auth', () => ({
+  getServerSession: vi.fn().mockResolvedValue(null),
+}))
+
+// Mock auth options
+vi.mock('@/auth', () => ({
+  authOptions: {},
+}))
+
 // Mock OpenAI
 const mockCreate = vi.fn()
 vi.mock('openai', () => {
@@ -30,6 +40,7 @@ import type { Session } from '@/types/session'
 function makeSession(overrides: Partial<Session> = {}): Session {
   return {
     id: 'test-id',
+    userId: null,
     status: 'gathering',
     category: 'couple',
     nameA: '太郎',

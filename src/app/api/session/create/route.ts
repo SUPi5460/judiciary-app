@@ -1,9 +1,12 @@
 import { NextResponse } from 'next/server'
 import { v4 as uuidv4 } from 'uuid'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/auth'
 import { saveSession, saveJoinCodeIndex } from '@/lib/storage'
 import { validateName, sanitizeInput } from '@/lib/validation'
 import { badRequest, serverError } from '@/lib/api-error'
 import { generateUniqueJoinCode } from '@/lib/join-code'
+import { AUTH_SESSION_TTL } from '@/lib/constants'
 import type { Session, Category, SessionMode } from '@/types/session'
 
 export async function POST(req: Request) {
@@ -43,8 +46,12 @@ export async function POST(req: Request) {
     const now = new Date().toISOString()
     const joinCode = mode === 'multi' ? await generateUniqueJoinCode() : null
 
+    const serverSession = await getServerSession(authOptions)
+    const userId = serverSession?.user?.id ?? null
+
     const session: Session = {
       id: uuidv4(),
+      userId,
       status: 'gathering',
       category: category ?? null,
       nameA: sanitizeInput(nameA),
@@ -62,7 +69,7 @@ export async function POST(req: Request) {
       updatedAt: now,
     }
 
-    await saveSession(session)
+    await saveSession(session, userId ? AUTH_SESSION_TTL : undefined)
 
     if (mode === 'multi' && joinCode) {
       await saveJoinCodeIndex(joinCode, session.id)

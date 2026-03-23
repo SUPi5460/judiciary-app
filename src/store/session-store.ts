@@ -216,6 +216,8 @@ export const useSessionStore = create<SessionState>((set, get) => ({
         ?.map((i: { issue: string }) => i.issue)
         .join('、') ?? null
 
+      // Cloud history: logged-in users' sessions are already persisted in KV
+      // with 30-day TTL (AUTH_SESSION_TTL) set at session creation time.
       const history = JSON.parse(localStorage.getItem('judiciary-history') || '[]')
         .filter((e: { id: string }) => e.id !== updatedSession.id)
       history.unshift({

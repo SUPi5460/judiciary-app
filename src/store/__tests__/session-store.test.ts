@@ -38,7 +38,7 @@ describe('sessionStore', () => {
     vi.mocked(fetch)
       .mockResolvedValueOnce(new Response(JSON.stringify({ id: 'test-id' }), { status: 201 }))
       .mockResolvedValueOnce(new Response(JSON.stringify({
-        id: 'test-id', status: 'gathering', nameA: '太郎', nameB: '花子',
+        id: 'test-id', userId: null, status: 'gathering', nameA: '太郎', nameB: '花子',
         messages: [], category: 'couple', summary: null, judgment: null,
         mode: 'single', joinCode: null, participants: { A: 'joined', B: 'waiting' },
         createdAt: '2026-01-01', updatedAt: '2026-01-01',
@@ -70,8 +70,9 @@ describe('sessionStore', () => {
     // Set initial session
     useSessionStore.setState({
       session: {
-        id: 'test-id', status: 'gathering', nameA: '太郎', nameB: '花子',
+        id: 'test-id', userId: null, status: 'gathering', nameA: '太郎', nameB: '花子',
         messages: [], category: 'couple', summary: null, judgment: null,
+        mode: 'single', joinCode: null, participants: { A: 'joined', B: 'joined' },
         createdAt: '2026-01-01', updatedAt: '2026-01-01',
       },
       currentSpeaker: 'A',
@@ -81,8 +82,9 @@ describe('sessionStore', () => {
     const aiMsg = { id: '2', speaker: 'AI' as const, content: 'AI応答', timestamp: '2026-01-01' }
 
     const fullSession = {
-      id: 'test-id', status: 'gathering', nameA: '太郎', nameB: '花子',
+      id: 'test-id', userId: null, status: 'gathering', nameA: '太郎', nameB: '花子',
       messages: [userMsg, aiMsg], category: 'couple', summary: null, judgment: null,
+      mode: 'single', joinCode: null, participants: { A: 'joined', B: 'joined' },
       createdAt: '2026-01-01', updatedAt: '2026-01-01',
     }
 
@@ -104,15 +106,17 @@ describe('sessionStore', () => {
   it('finalize updates session status', async () => {
     useSessionStore.setState({
       session: {
-        id: 'test-id', status: 'gathering', nameA: '太郎', nameB: '花子',
+        id: 'test-id', userId: null, status: 'gathering', nameA: '太郎', nameB: '花子',
         messages: [], category: 'couple', summary: null, judgment: null,
+        mode: 'single', joinCode: null, participants: { A: 'joined', B: 'joined' },
         createdAt: '2026-01-01', updatedAt: '2026-01-01',
       },
     })
 
     const finalizedSession = {
-      id: 'test-id', status: 'ready_for_judge', nameA: '太郎', nameB: '花子',
+      id: 'test-id', userId: null, status: 'ready_for_judge', nameA: '太郎', nameB: '花子',
       messages: [], category: 'couple', summary: 'まとめ', judgment: null,
+      mode: 'single', joinCode: null, participants: { A: 'joined', B: 'joined' },
       createdAt: '2026-01-01', updatedAt: '2026-01-01',
     }
 
@@ -128,8 +132,9 @@ describe('sessionStore', () => {
   it('requestJudgment updates session with judgment', async () => {
     useSessionStore.setState({
       session: {
-        id: 'test-id', status: 'ready_for_judge', nameA: '太郎', nameB: '花子',
+        id: 'test-id', userId: null, status: 'ready_for_judge', nameA: '太郎', nameB: '花子',
         messages: [], category: 'couple', summary: 'まとめ', judgment: null,
+        mode: 'single', joinCode: null, participants: { A: 'joined', B: 'joined' },
         createdAt: '2026-01-01', updatedAt: '2026-01-01',
       },
     })
@@ -141,8 +146,9 @@ describe('sessionStore', () => {
     }
 
     const judgedSession = {
-      id: 'test-id', status: 'judged', nameA: '太郎', nameB: '花子',
+      id: 'test-id', userId: null, status: 'judged', nameA: '太郎', nameB: '花子',
       messages: [], category: 'couple', summary: 'まとめ', judgment,
+      mode: 'single', joinCode: null, participants: { A: 'joined', B: 'joined' },
       createdAt: '2026-01-01', updatedAt: '2026-01-01',
     }
 
@@ -167,8 +173,9 @@ describe('sessionStore', () => {
   it('generateShareLink returns share URL', async () => {
     useSessionStore.setState({
       session: {
-        id: 'test-id', status: 'judged', nameA: '太郎', nameB: '花子',
+        id: 'test-id', userId: null, status: 'judged', nameA: '太郎', nameB: '花子',
         messages: [], category: 'couple', summary: 'まとめ', judgment: null,
+        mode: 'single', joinCode: null, participants: { A: 'joined', B: 'joined' },
         createdAt: '2026-01-01', updatedAt: '2026-01-01',
       },
     })
@@ -251,7 +258,7 @@ describe('sessionStore', () => {
   it('startPolling creates interval', () => {
     useSessionStore.setState({
       session: {
-        id: 'test-id', status: 'gathering', nameA: '太郎', nameB: '花子',
+        id: 'test-id', userId: null, status: 'gathering', nameA: '太郎', nameB: '花子',
         messages: [], category: 'couple', summary: null, judgment: null,
         mode: 'multi', joinCode: 'ABC123', participants: { A: 'joined', B: 'joined' },
         createdAt: '2026-01-01', updatedAt: '2026-01-01',

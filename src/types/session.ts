@@ -9,6 +9,7 @@ export type ParticipantStatus = 'waiting' | 'joined'
 
 export interface Session {
   id: string
+  userId: string | null
   status: SessionStatus
   category: Category | null
   nameA: string

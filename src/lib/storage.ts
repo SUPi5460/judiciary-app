@@ -51,10 +51,11 @@ export async function getSession(id: string): Promise<Session | null> {
   return kv.get<Session>(`session:${id}`)
 }
 
-export async function saveSession(session: Session): Promise<void> {
-  if (isInMemory()) return memSet(`session:${session.id}`, session, SESSION_TTL)
+export async function saveSession(session: Session, ttl?: number): Promise<void> {
+  const effectiveTTL = ttl ?? SESSION_TTL
+  if (isInMemory()) return memSet(`session:${session.id}`, session, effectiveTTL)
   const kv = await getKv()
-  await kv.set(`session:${session.id}`, session, { ex: SESSION_TTL })
+  await kv.set(`session:${session.id}`, session, { ex: effectiveTTL })
 }
 
 export async function deleteSession(id: string): Promise<void> {

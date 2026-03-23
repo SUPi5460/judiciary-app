@@ -31,6 +31,7 @@ import type { Session } from '@/types/session'
 function makeSession(overrides: Partial<Session> = {}): Session {
   return {
     id: 'test-id',
+    userId: null,
     status: 'gathering',
     category: 'couple',
     nameA: '太郎',

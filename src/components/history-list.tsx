@@ -52,8 +52,8 @@ export function HistoryList() {
         過去の仲裁
       </h2>
       <ul className="space-y-2">
-        {history.map((entry) => (
-          <li key={entry.id}>
+        {history.map((entry, index) => (
+          <li key={entry.id ?? index}>
             <Link
               href={`/session/${entry.id}/result`}
               className="flex items-center justify-between rounded-lg border border-zinc-200 bg-white px-4 py-3 transition-colors hover:border-blue-300 hover:bg-blue-50 dark:border-zinc-700 dark:bg-zinc-900 dark:hover:border-blue-600 dark:hover:bg-zinc-800"

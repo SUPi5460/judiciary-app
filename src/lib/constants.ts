@@ -5,6 +5,7 @@ export const AUTH_SESSION_TTL = 2592000 // 30 days
 // 制限解除アカウント（管理者・テスター）
 export const UNLIMITED_EMAILS = [
   'supi5460@gmail.com',
+  'moea000120@gmail.com',
 ]
 
 export function getTurnLimit(userEmail: string | null, userId: string | null): number {

@@ -113,7 +113,29 @@ export default function ResultPage() {
   }
 
   if (!session?.judgment) {
-    return null
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-zinc-50">
+        <div className="text-center space-y-4 max-w-md px-4">
+          <div className="text-4xl">⚖️</div>
+          <p className="text-zinc-600 font-medium">判定結果がありません</p>
+          <p className="text-sm text-zinc-400">議論を再開したか、まだ判定が完了していません</p>
+          <div className="flex gap-3 mt-4">
+            <button
+              onClick={() => router.push(`/session/${id}`)}
+              className="px-6 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-500 transition-colors"
+            >
+              議論に戻る
+            </button>
+            <button
+              onClick={() => router.push('/')}
+              className="px-6 py-2 bg-zinc-800 text-white rounded-lg text-sm hover:bg-zinc-700 transition-colors"
+            >
+              ホームへ
+            </button>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   const { judgment, nameA, nameB } = session

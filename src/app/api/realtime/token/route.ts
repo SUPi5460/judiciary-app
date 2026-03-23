@@ -11,6 +11,11 @@ export async function POST(req: NextRequest) {
     const session = await getSession(sessionId)
     if (!session) return notFound('セッションが見つかりません')
 
+    // マルチデバイスモードかつ両者参加済みのみ許可
+    if (session.mode !== 'multi') return badRequest('音声通話はマルチデバイスモードでのみ利用可能です')
+    if (session.participants?.B !== 'joined') return badRequest('参加者が揃っていません')
+    if (session.status !== 'gathering') return badRequest('gathering状態でのみ利用可能です')
+
     const instructions = buildSystemPrompt(
       session.category ?? 'other',
       session.nameA,

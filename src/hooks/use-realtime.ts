@@ -28,8 +28,10 @@ export function useRealtime({
   const dcRef = useRef<RTCDataChannel | null>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const streamRef = useRef<MediaStream | null>(null)
+  const connectingRef = useRef(false) // Ref-based lock to prevent double connect
 
   const disconnect = useCallback(() => {
+    connectingRef.current = false
     dcRef.current?.close()
     pcRef.current?.close()
     streamRef.current?.getTracks().forEach(t => t.stop())
@@ -40,10 +42,13 @@ export function useRealtime({
     dcRef.current = null
     streamRef.current = null
     setIsConnected(false)
+    setIsConnecting(false)
   }, [])
 
   const connect = useCallback(async () => {
-    if (isConnected || isConnecting) return
+    // Ref-based guard prevents double invocation (state may not update immediately)
+    if (connectingRef.current || pcRef.current) return
+    connectingRef.current = true
     setIsConnecting(true)
 
     try {
@@ -56,9 +61,27 @@ export function useRealtime({
       if (!tokenRes.ok) throw new Error('Token取得失敗')
       const { token } = await tokenRes.json()
 
+      // Check if disconnected during async operation
+      if (!connectingRef.current) return
+
       // 2. Create peer connection
       const pc = new RTCPeerConnection()
       pcRef.current = pc
+
+      // Monitor connection state for failures
+      pc.onconnectionstatechange = () => {
+        if (pc.connectionState === 'failed' || pc.connectionState === 'disconnected') {
+          onError('接続が切断されました')
+          disconnect()
+        }
+      }
+
+      pc.oniceconnectionstatechange = () => {
+        if (pc.iceConnectionState === 'failed') {
+          onError('ICE接続に失敗しました')
+          disconnect()
+        }
+      }
 
       // 3. Audio playback
       const audio = document.createElement('audio')
@@ -68,6 +91,10 @@ export function useRealtime({
 
       // 4. Microphone
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      if (!connectingRef.current) {
+        stream.getTracks().forEach(t => t.stop())
+        return
+      }
       streamRef.current = stream
       pc.addTrack(stream.getTracks()[0])
 
@@ -100,12 +127,18 @@ export function useRealtime({
       const offer = await pc.createOffer()
       await pc.setLocalDescription(offer)
 
-      await new Promise<void>((resolve) => {
+      await new Promise<void>((resolve, reject) => {
         if (pc.iceGatheringState === 'complete') return resolve()
+        const timeout = setTimeout(() => reject(new Error('ICE gathering タイムアウト')), 10000)
         pc.onicegatheringstatechange = () => {
-          if (pc.iceGatheringState === 'complete') resolve()
+          if (pc.iceGatheringState === 'complete') {
+            clearTimeout(timeout)
+            resolve()
+          }
         }
       })
+
+      if (!connectingRef.current) return
 
       const sdpRes = await fetch('https://api.openai.com/v1/realtime/calls', {
         method: 'POST',
@@ -118,15 +151,21 @@ export function useRealtime({
       if (!sdpRes.ok) throw new Error('SDP交換失敗')
 
       await pc.setRemoteDescription({ type: 'answer', sdp: await sdpRes.text() })
-      setIsConnected(true)
 
+      if (!connectingRef.current) {
+        disconnect()
+        return
+      }
+
+      setIsConnected(true)
     } catch (err) {
       onError(err instanceof Error ? err.message : '接続に失敗しました')
       disconnect()
     } finally {
+      connectingRef.current = false
       setIsConnecting(false)
     }
-  }, [sessionId, isConnected, isConnecting, onTranscriptDelta, onTranscriptDone, onError, disconnect])
+  }, [sessionId, onTranscriptDelta, onTranscriptDone, onError, disconnect])
 
   useEffect(() => {
     return () => { disconnect() }

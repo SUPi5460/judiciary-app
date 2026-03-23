@@ -12,11 +12,14 @@ export async function POST(
     const { id } = await params
     const session = await getSession(id)
     if (!session) return notFound('セッションが見つかりません')
+    if (session.mode !== 'multi') return badRequest('transcript APIはマルチデバイスモード専用です')
+    if (session.participants?.B !== 'joined') return badRequest('参加者が揃っていません')
     if (session.status !== 'gathering') return badRequest('gathering状態でのみ追加可能です')
 
     const { speaker, content } = await req.json() as { speaker?: Speaker | 'AI'; content?: string }
     if (!speaker || !content) return badRequest('speaker と content は必須です')
     if (!['A', 'B', 'AI'].includes(speaker)) return badRequest('speaker は A, B, AI のいずれかを指定してください')
+    if (content.length > 5000) return badRequest('content が長すぎます')
 
     session.messages.push({
       id: uuidv4(),

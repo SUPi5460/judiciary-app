@@ -19,17 +19,28 @@ export function VoiceCall({ sessionId, onSwitchToText }: VoiceCallProps) {
     setLatestText(text)
   }, [])
 
+  const saveTranscript = useCallback(async (speakerLabel: string, content: string) => {
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        const res = await fetch(`/api/session/${sessionId}/transcript`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ speaker: speakerLabel, content }),
+        })
+        if (res.ok) return
+      } catch {
+        // retry
+      }
+    }
+    setError('発言の保存に失敗しました')
+  }, [sessionId])
+
   const handleTranscriptDone = useCallback((text: string, role: 'user' | 'assistant') => {
     if (!text.trim()) return
     const speakerLabel = role === 'assistant' ? 'AI' : speaker
-    // Save via transcript API (allows AI speaker)
-    fetch(`/api/session/${sessionId}/transcript`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ speaker: speakerLabel, content: text.trim() }),
-    }).catch(() => {})
+    saveTranscript(speakerLabel, text.trim())
     setLatestText('')
-  }, [sessionId, speaker])
+  }, [speaker, saveTranscript])
 
   const handleError = useCallback((msg: string) => {
     setError(msg)

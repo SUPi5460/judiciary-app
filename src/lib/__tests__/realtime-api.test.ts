@@ -51,7 +51,7 @@ describe('POST /api/realtime/token', () => {
   })
 
   it('returns token on success', async () => {
-    const session = makeSession()
+    const session = makeSession({ mode: 'multi' })
     vi.mocked(getSession).mockResolvedValue(session)
 
     global.fetch = vi.fn().mockResolvedValue({
@@ -105,7 +105,7 @@ describe('POST /api/session/[id]/transcript', () => {
   })
 
   it('saves AI transcript', async () => {
-    const session = makeSession()
+    const session = makeSession({ mode: 'multi' })
     vi.mocked(getSession).mockResolvedValue(session)
     vi.mocked(saveSession).mockResolvedValue(undefined)
 
@@ -126,7 +126,7 @@ describe('POST /api/session/[id]/transcript', () => {
   })
 
   it('saves user transcript (speaker A)', async () => {
-    const session = makeSession()
+    const session = makeSession({ mode: 'multi' })
     vi.mocked(getSession).mockResolvedValue(session)
     vi.mocked(saveSession).mockResolvedValue(undefined)
 

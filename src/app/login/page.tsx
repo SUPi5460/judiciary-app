@@ -71,7 +71,11 @@ export default function LoginPage() {
               </li>
             </ul>
 
-            <div className="mt-4">
+            <p className="mt-4 text-[10px] text-white/40 leading-relaxed">
+              ※ LINEやInstagramなどのアプリ内ブラウザではGoogleログインが利用できません。Safari・Chromeなどのブラウザで開いてください。
+            </p>
+
+            <div className="mt-3">
               <Link
                 href="/"
                 className="text-xs text-white/60 transition-colors hover:text-white/80"

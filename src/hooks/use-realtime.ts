@@ -58,7 +58,10 @@ export function useRealtime({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sessionId }),
       })
-      if (!tokenRes.ok) throw new Error('Token取得失敗')
+      if (!tokenRes.ok) {
+        const errData = await tokenRes.json().catch(() => null)
+        throw new Error(errData?.error ?? `Token取得失敗 (${tokenRes.status})`)
+      }
       const { token } = await tokenRes.json()
 
       // Check if disconnected during async operation

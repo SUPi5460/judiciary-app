@@ -20,7 +20,7 @@ export default function Home() {
 
           {/* Title & Subtitle */}
           <div className="flex flex-col items-center gap-3 text-center">
-            <h1 className="text-5xl font-extrabold tracking-tight text-white drop-shadow-sm">
+            <h1 className="text-5xl font-bold tracking-tight text-white drop-shadow-sm" style={{ fontFamily: 'var(--font-libre-baskerville), serif' }}>
               JudgeMate
             </h1>
             <p className="max-w-xs text-lg font-medium text-indigo-100/80">

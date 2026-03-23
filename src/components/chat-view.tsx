@@ -57,20 +57,25 @@ export function ChatView({
   const canFinalize = hasSpokenA && hasSpokenB
 
   return (
-    <div className="flex h-full flex-col gap-4">
-      {mode === 'multi' ? (
-        <div className="rounded-lg bg-green-100 px-4 py-2 text-center font-semibold text-green-800 dark:bg-green-900/30 dark:text-green-300">
-          あなたは{currentSpeakerName}です
-        </div>
-      ) : (
-        <SpeakerIndicator
-          currentSpeaker={currentSpeaker}
-          nameA={session.nameA}
-          nameB={session.nameB}
-        />
-      )}
-      <div className="flex-1 overflow-y-auto p-4">
-        <div className="flex flex-col gap-3">
+    <div className="flex h-full flex-col">
+      {/* Speaker indicator area */}
+      <div className="px-4 pt-3">
+        {mode === 'multi' ? (
+          <div className="rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 px-4 py-2.5 text-center font-semibold text-white shadow-sm">
+            あなたは{currentSpeakerName}です
+          </div>
+        ) : (
+          <SpeakerIndicator
+            currentSpeaker={currentSpeaker}
+            nameA={session.nameA}
+            nameB={session.nameB}
+          />
+        )}
+      </div>
+
+      {/* Messages area */}
+      <div className="flex-1 overflow-y-auto px-4 py-4">
+        <div className="flex flex-col gap-4">
           {messages.map((message) => (
             <MessageBubble
               key={message.id}
@@ -82,7 +87,9 @@ export function ChatView({
           <div ref={bottomRef} />
         </div>
       </div>
-      <div className="sticky bottom-0 flex flex-col gap-2 bg-white p-4 shadow-inner dark:bg-zinc-800">
+
+      {/* Bottom bar */}
+      <div className="sticky bottom-0 flex flex-col gap-2.5 border-t border-zinc-200 bg-white/80 p-4 backdrop-blur-lg dark:border-zinc-700 dark:bg-zinc-900/80">
         {mode === 'multi' && isVoiceMode ? (
           <VoiceCall sessionId={sessionId} onSwitchToText={onToggleVoice} />
         ) : (
@@ -91,9 +98,9 @@ export function ChatView({
               <button
                 type="button"
                 onClick={onToggleVoice}
-                className="self-center rounded-lg border border-green-300 px-4 py-2 text-sm font-medium text-green-700 hover:bg-green-50 transition-colors dark:border-green-600 dark:text-green-400 dark:hover:bg-green-900/20"
+                className="self-center rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-2 text-sm font-medium text-emerald-700 shadow-sm transition-all duration-200 hover:bg-emerald-100 hover:shadow-md dark:border-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400 dark:hover:bg-emerald-900/30"
               >
-                音声で話す
+                🎙 音声で話す
               </button>
             )}
             <TextInput
@@ -108,10 +115,10 @@ export function ChatView({
             <button
               type="button"
               onClick={onSwitchSpeaker}
-              className={`flex-1 rounded-lg px-4 py-2.5 text-sm font-medium text-white transition-colors ${
+              className={`flex-1 rounded-xl px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:shadow-md active:scale-[0.98] ${
                 currentSpeaker === 'A'
-                  ? 'bg-red-500 hover:bg-red-600'
-                  : 'bg-blue-500 hover:bg-blue-600'
+                  ? 'bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700'
+                  : 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700'
               }`}
               disabled={isLoading}
             >
@@ -122,7 +129,7 @@ export function ChatView({
             <button
               type="button"
               onClick={onFinalize}
-              className="flex-1 rounded-lg bg-green-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-green-700 transition-colors"
+              className="flex-1 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:from-emerald-600 hover:to-teal-600 hover:shadow-md active:scale-[0.98]"
               disabled={isLoading}
             >
               判定に進む

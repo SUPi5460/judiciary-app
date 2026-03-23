@@ -115,10 +115,10 @@ export default function SessionPage() {
 
   if (isJudging) {
     return (
-      <div className="flex h-screen items-center justify-center bg-zinc-50">
-        <div className="text-center space-y-4">
-          <div className="text-4xl animate-pulse">⚖️</div>
-          <p className="text-zinc-600 font-medium">判定中...</p>
+      <div className="flex h-screen items-center justify-center bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-zinc-900 dark:to-zinc-950">
+        <div className="text-center space-y-4 animate-fade-in">
+          <div className="text-5xl animate-float">{'⚖️'}</div>
+          <p className="text-zinc-700 font-semibold text-lg dark:text-zinc-200">判定中...</p>
           <p className="text-sm text-zinc-400">AIが公平に判定しています</p>
         </div>
       </div>
@@ -128,7 +128,7 @@ export default function SessionPage() {
   if (isLoading && !session) {
     return (
       <div className="flex h-screen items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-indigo-500 border-t-transparent" />
       </div>
     )
   }
@@ -154,14 +154,18 @@ export default function SessionPage() {
   }
 
   return (
-    <div className="flex h-screen flex-col">
-      <header className="flex items-center justify-between border-b px-4 py-3">
-        <Link href="/" className="text-sm text-blue-600">
+    <div className="flex h-screen flex-col bg-zinc-50 dark:bg-zinc-950">
+      {/* Gradient header bar */}
+      <header className="flex items-center justify-between bg-gradient-to-r from-indigo-600 to-purple-600 px-4 py-3 shadow-md">
+        <Link href="/" className="text-sm font-medium text-white/80 transition-colors hover:text-white">
           ← 戻る
         </Link>
-        <span className="text-sm font-semibold text-zinc-600">
-          {formatElapsed(elapsedSeconds)}
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-white/60">{'⚖️'}</span>
+          <span className="text-sm font-bold text-white tracking-wide">
+            {formatElapsed(elapsedSeconds)}
+          </span>
+        </div>
       </header>
       <div className="flex-1 overflow-hidden">
         <ChatView

@@ -19,10 +19,10 @@ export function MessageBubble({
 
   const label = isSpeakerA ? nameA : isSpeakerB ? nameB : '判事AI'
   const bubbleClassName = isSpeakerA
-    ? 'bg-blue-500 text-white self-start'
+    ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-md shadow-blue-500/20 self-start'
     : isSpeakerB
-      ? 'bg-red-500 text-white self-end'
-      : 'bg-zinc-200 text-zinc-800 dark:bg-zinc-700 dark:text-zinc-200 self-center'
+      ? 'bg-gradient-to-br from-rose-500 to-rose-600 text-white shadow-md shadow-rose-500/20 self-end'
+      : 'bg-white text-zinc-700 border border-zinc-200 shadow-sm self-center dark:bg-zinc-800 dark:text-zinc-200 dark:border-zinc-700'
 
   const wrapperAlignment = isSpeakerB
     ? 'items-end'
@@ -30,13 +30,19 @@ export function MessageBubble({
       ? 'items-center'
       : 'items-start'
 
+  const labelClassName = isSpeakerA
+    ? 'text-blue-600 dark:text-blue-400'
+    : isSpeakerB
+      ? 'text-rose-600 dark:text-rose-400'
+      : 'text-zinc-500 dark:text-zinc-400'
+
   return (
-    <div className={`flex flex-col gap-1 ${wrapperAlignment}`}>
-      <span className="text-xs text-zinc-500">{label}</span>
-      <div className={`max-w-[80%] rounded-2xl px-4 py-2 whitespace-pre-wrap ${bubbleClassName}`}>
+    <div className={`flex flex-col gap-1 ${wrapperAlignment} animate-fade-in`}>
+      <span className={`text-xs font-semibold ${labelClassName}`}>{label}</span>
+      <div className={`max-w-[80%] rounded-2xl px-4 py-2.5 whitespace-pre-wrap ${bubbleClassName}`}>
         {message.content}
       </div>
-      <span className="text-xs text-zinc-400">
+      <span className="text-[10px] text-zinc-400 dark:text-zinc-500">
         {new Date(message.timestamp).toLocaleTimeString('ja-JP')}
       </span>
     </div>

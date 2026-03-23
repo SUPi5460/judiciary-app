@@ -166,10 +166,10 @@ export function TextInput({
               ? '聞き取り中...'
               : `${currentSpeakerName}さんの意見を入力...`
           }
-          className={`w-full rounded-lg border px-4 py-2 transition-colors ${
+          className={`w-full rounded-xl border bg-zinc-50 px-4 py-2.5 text-sm transition-all duration-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1 dark:bg-zinc-800 dark:text-zinc-100 dark:focus:bg-zinc-800 dark:focus:ring-offset-zinc-900 ${
             isListening
               ? 'border-red-400 bg-red-50 text-zinc-600 dark:border-red-600 dark:bg-red-950'
-              : ''
+              : 'border-zinc-200 dark:border-zinc-700'
           }`}
           disabled={isLoading}
         />
@@ -179,7 +179,7 @@ export function TextInput({
           <button
             type="button"
             onClick={startListening}
-            className="rounded-lg bg-zinc-200 px-4 py-2 text-zinc-600 hover:bg-zinc-300 transition-colors dark:bg-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-600"
+            className="rounded-xl bg-zinc-100 px-4 py-2.5 text-zinc-600 shadow-sm transition-all duration-200 hover:bg-zinc-200 hover:shadow-md dark:bg-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-600"
             disabled={isLoading}
             aria-label="音声入力を開始"
           >
@@ -192,7 +192,7 @@ export function TextInput({
           <button
             type="button"
             onClick={stopListening}
-            className="rounded-lg bg-red-500 px-4 py-2 text-white animate-pulse hover:bg-red-600 transition-colors"
+            className="rounded-xl bg-red-500 px-4 py-2.5 text-white shadow-sm animate-pulse transition-all duration-200 hover:bg-red-600"
             aria-label="録音を停止"
           >
             🔴
@@ -203,7 +203,7 @@ export function TextInput({
         {hasText && !isListening && (
           <button
             type="submit"
-            className="rounded-lg bg-blue-600 px-4 py-2 text-white disabled:cursor-not-allowed disabled:opacity-50 hover:bg-blue-500 transition-colors"
+            className="rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:shadow-md hover:from-indigo-600 hover:to-purple-600 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
             disabled={isDisabled}
           >
             送信
@@ -214,7 +214,7 @@ export function TextInput({
         {!hasText && !isListening && !speechSupported && (
           <button
             type="submit"
-            className="rounded-lg bg-blue-600 px-4 py-2 text-white disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 px-5 py-2.5 text-sm font-semibold text-white shadow-sm disabled:cursor-not-allowed disabled:opacity-50"
             disabled
           >
             送信
@@ -223,7 +223,7 @@ export function TextInput({
       </form>
 
       {micError && (
-        <div role="alert" className="fixed bottom-20 left-1/2 -translate-x-1/2 px-4 py-2 bg-red-600 text-white rounded-lg text-sm shadow-lg z-50">
+        <div role="alert" className="fixed bottom-20 left-1/2 -translate-x-1/2 px-4 py-2.5 bg-red-600 text-white rounded-xl text-sm shadow-lg z-50 animate-fade-in">
           {micError}
         </div>
       )}

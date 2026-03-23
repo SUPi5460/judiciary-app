@@ -71,7 +71,7 @@ export default function JoinPage() {
       if (currentSession) {
         router.push(`/session/${currentSession.id}`)
       }
-    } catch {
+    } finally {
       setIsJoining(false)
     }
   }

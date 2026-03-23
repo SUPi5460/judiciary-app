@@ -39,6 +39,11 @@ export async function POST(
       return badRequest('speaker は A または B を指定してください')
     }
 
+    // マルチデバイスモード: Bが未参加ならBとして発言不可
+    if (session.mode === 'multi' && speaker === 'B' && session.participants?.B !== 'joined') {
+      return badRequest('参加者Bはまだセッションに参加していません')
+    }
+
     const msgResult = validateMessage(content)
     if (!msgResult.valid) {
       return badRequest(msgResult.error)

@@ -9,7 +9,7 @@ const CATEGORY_MAP: Record<Category, string> = {
 
 export function buildSystemPrompt(category: Category | string, nameA: string, nameB: string): string {
   const categoryLabel = CATEGORY_MAP[category as Category] ?? category
-  return `あなたは「判事AI」です。${categoryLabel}間の争いを公平に仲裁する裁判官として振る舞います。
+  return `あなたは「JudgeMate」です。${categoryLabel}間の争いを公平に仲裁する裁判官として振る舞います。
 
 【性格】
 - 冷静かつ公平、どちらの味方もしない

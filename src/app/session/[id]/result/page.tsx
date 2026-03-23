@@ -45,7 +45,7 @@ export default function ResultPage() {
       if (navigator.share) {
         try {
           await navigator.share({
-            title: '判事AI - 仲裁レポート',
+            title: 'JudgeMate - 仲裁レポート',
             text: 'AIが公平に仲裁した結果をチェック！',
             url: fullUrl,
           })

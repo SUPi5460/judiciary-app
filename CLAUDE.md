@@ -1,7 +1,7 @@
-# CLAUDE.MD - Judiciary App
+# CLAUDE.MD - JudgeMate
 
 ## プロジェクト概要
-判事AIアプリ - 友人・カップル・夫婦間の喧嘩を仲裁するAIアプリケーション。
+JudgeMate - 友人・カップル・夫婦間の喧嘩を仲裁するAIアプリケーション。
 AIが司会者として両者に質問し、論点ごとに妥当性を判定し、解決策を提案する。
 
 ## 親CLAUDE.MDの継承

@@ -1,4 +1,4 @@
-# Judiciary App - 判事AI ⚖️
+# JudgeMate ⚖️
 
 友人・カップル・夫婦間の喧嘩を公平に仲裁するAIアプリケーション。
 

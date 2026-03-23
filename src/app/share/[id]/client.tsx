@@ -94,7 +94,7 @@ export function ShareReportClient() {
             href="/"
             className="text-blue-600 hover:text-blue-500 font-medium text-sm transition-colors"
           >
-            判事AIで仲裁してみる {'→'}
+            JudgeMateで仲裁してみる {'→'}
           </Link>
         </div>
       </div>

@@ -2,8 +2,8 @@ import type { MetadataRoute } from 'next'
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: '判事AI - 喧嘩の仲裁アプリ',
-    short_name: '判事AI',
+    name: 'JudgeMate - 喧嘩の仲裁アプリ',
+    short_name: 'JudgeMate',
     description: '友人・カップル・夫婦間の喧嘩をAIが公平に仲裁。論点を整理し、解決策を提案します。',
     start_url: '/',
     display: 'standalone',

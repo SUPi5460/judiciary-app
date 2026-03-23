@@ -17,7 +17,7 @@ export function MessageBubble({
   const isSpeakerB = message.speaker === 'B'
   const isSpeakerAI = message.speaker === 'AI'
 
-  const label = isSpeakerA ? nameA : isSpeakerB ? nameB : '判事AI'
+  const label = isSpeakerA ? nameA : isSpeakerB ? nameB : 'JudgeMate'
   const bubbleClassName = isSpeakerA
     ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-md shadow-blue-500/20 self-start'
     : isSpeakerB

@@ -14,12 +14,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "判事AI - 喧嘩の仲裁アプリ",
+  title: "JudgeMate - 喧嘩の仲裁アプリ",
   description: "友人・カップル・夫婦間の喧嘩をAIが公平に仲裁。論点を整理し、解決策を提案します。",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "判事AI",
+    title: "JudgeMate",
   },
 };
 

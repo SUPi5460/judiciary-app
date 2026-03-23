@@ -21,7 +21,7 @@ export default function Home() {
           {/* Title & Subtitle */}
           <div className="flex flex-col items-center gap-3 text-center">
             <h1 className="text-5xl font-extrabold tracking-tight text-white drop-shadow-sm">
-              判事AI
+              JudgeMate
             </h1>
             <p className="max-w-xs text-lg font-medium text-indigo-100/80">
               友人・カップル・夫婦間の喧嘩を公平に仲裁

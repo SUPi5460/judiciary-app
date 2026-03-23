@@ -25,7 +25,7 @@ export default function ResultPage() {
 
   useEffect(() => {
     if (!session) return
-    if (session.status === 'ready_for_judge' || session.status === 'gathering') {
+    if (session.status === 'ready_for_judge') {
       requestJudgment()
     }
   }, [session?.status, session?.id, requestJudgment])

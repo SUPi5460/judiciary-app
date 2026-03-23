@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
 
     session.judgment = { ...judgment, createdAt: new Date().toISOString() }
     session.summary = summary
-    session.messages = []
+    // メッセージは保持（議論再開時に必要）
     session.status = transition(session.status, 'complete_judge')
     session.updatedAt = new Date().toISOString()
     await saveSession(session)

@@ -28,7 +28,19 @@ export function HistoryList() {
     try {
       const raw = localStorage.getItem('judiciary-history')
       if (raw) {
-        setHistory(JSON.parse(raw))
+        const parsed: HistoryEntry[] = JSON.parse(raw)
+        // 重複排除（同じIDの古いエントリを除去）
+        const seen = new Set<string>()
+        const deduped = parsed.filter((e) => {
+          if (!e.id || seen.has(e.id)) return false
+          seen.add(e.id)
+          return true
+        })
+        setHistory(deduped)
+        // クリーンアップしたデータを保存
+        if (deduped.length !== parsed.length) {
+          localStorage.setItem('judiciary-history', JSON.stringify(deduped))
+        }
       }
     } catch {
       // Ignore corrupt localStorage data.

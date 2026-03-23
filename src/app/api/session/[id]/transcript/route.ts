@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { v4 as uuidv4 } from 'uuid'
 import { getSession, saveSession } from '@/lib/storage'
 import { badRequest, notFound, serverError } from '@/lib/api-error'
-import { FREE_TURN_LIMIT, AUTH_TURN_LIMIT } from '@/lib/constants'
+import { getTurnLimit } from '@/lib/constants'
 import type { Speaker } from '@/types/session'
 
 export async function POST(
@@ -22,7 +22,7 @@ export async function POST(
     if (!['A', 'B', 'AI'].includes(speaker)) return badRequest('speaker は A, B, AI のいずれかを指定してください')
     if (content.length > 5000) return badRequest('content が長すぎます')
 
-    const turnLimit = session.userId ? AUTH_TURN_LIMIT : FREE_TURN_LIMIT
+    const turnLimit = getTurnLimit(session.userEmail, session.userId)
     const userTurns = session.messages.filter(m => m.speaker !== 'AI').length
     if (speaker !== 'AI' && userTurns >= turnLimit) {
       return badRequest('ターン上限に達しました。')

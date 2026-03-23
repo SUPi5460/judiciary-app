@@ -48,10 +48,12 @@ export async function POST(req: Request) {
 
     const serverSession = await getServerSession(authOptions)
     const userId = serverSession?.user?.id ?? null
+    const userEmail = serverSession?.user?.email ?? null
 
     const session: Session = {
       id: uuidv4(),
       userId,
+      userEmail,
       status: 'gathering',
       category: category ?? null,
       nameA: sanitizeInput(nameA),

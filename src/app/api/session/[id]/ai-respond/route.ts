@@ -4,7 +4,7 @@ import OpenAI from 'openai'
 import { getSession, saveSession } from '@/lib/storage'
 import { buildSystemPrompt } from '@/lib/llm/prompts'
 import { badRequest, notFound, serverError } from '@/lib/api-error'
-import { FREE_TURN_LIMIT, AUTH_TURN_LIMIT } from '@/lib/constants'
+import { getTurnLimit } from '@/lib/constants'
 import type { Message } from '@/types/message'
 
 export async function POST(
@@ -23,7 +23,7 @@ export async function POST(
       return badRequest('AI応答は gathering 状態でのみ可能です')
     }
 
-    const turnLimit = session.userId ? AUTH_TURN_LIMIT : FREE_TURN_LIMIT
+    const turnLimit = getTurnLimit(session.userEmail, session.userId)
     const userTurns = session.messages.filter((m: Message) => m.speaker !== 'AI').length
     if (userTurns >= turnLimit) {
       return badRequest('ターン上限に達しました。判定に進んでください。')

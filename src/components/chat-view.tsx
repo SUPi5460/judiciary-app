@@ -7,7 +7,7 @@ import { MessageBubble } from '@/components/message-bubble'
 import { SpeakerIndicator } from '@/components/speaker-indicator'
 import { TextInput } from '@/components/text-input'
 import { VoiceCall } from '@/components/voice-call'
-import { FREE_TURN_LIMIT, AUTH_TURN_LIMIT } from '@/lib/constants'
+import { getTurnLimit } from '@/lib/constants'
 
 interface ChatViewProps {
   session: Session
@@ -51,10 +51,11 @@ export function ChatView({
   const otherSpeakerName =
     currentSpeaker === 'A' ? session.nameB : session.nameA
 
-  const turnLimit = userId ? AUTH_TURN_LIMIT : FREE_TURN_LIMIT
+  const turnLimit = getTurnLimit(session?.userEmail ?? null, userId)
   const userTurns = messages.filter((m: Message) => m.speaker !== 'AI').length
-  const remainingTurns = Math.max(0, turnLimit - userTurns)
-  const isLimitReached = remainingTurns === 0
+  const isUnlimited = turnLimit === Infinity
+  const remainingTurns = isUnlimited ? Infinity : Math.max(0, turnLimit - userTurns)
+  const isLimitReached = !isUnlimited && remainingTurns === 0
 
   const hasSpokenA = messages.some(
     (message: Message) => message.speaker === 'A'
@@ -98,20 +99,22 @@ export function ChatView({
 
       {/* Bottom bar */}
       <div className="sticky bottom-0 flex flex-col gap-2.5 border-t border-zinc-200 bg-white/80 p-4 backdrop-blur-lg dark:border-zinc-700 dark:bg-zinc-900/80">
-        {/* Turn counter */}
-        <div className="flex justify-end">
-          <span
-            className={`text-xs font-medium ${
-              remainingTurns === 0
-                ? 'text-red-500 dark:text-red-400'
-                : remainingTurns <= 3
-                  ? 'text-amber-500 dark:text-amber-400'
-                  : 'text-zinc-400 dark:text-zinc-500'
-            }`}
-          >
-            残り {remainingTurns}/{turnLimit}
-          </span>
-        </div>
+        {/* Turn counter (hide for unlimited users) */}
+        {!isUnlimited && (
+          <div className="flex justify-end">
+            <span
+              className={`text-xs font-medium ${
+                remainingTurns === 0
+                  ? 'text-red-500 dark:text-red-400'
+                  : remainingTurns <= 3
+                    ? 'text-amber-500 dark:text-amber-400'
+                    : 'text-zinc-400 dark:text-zinc-500'
+              }`}
+            >
+              残り {remainingTurns}/{turnLimit}
+            </span>
+          </div>
+        )}
 
         {isLimitReached ? (
           <div className="flex flex-col items-center gap-3 rounded-xl border border-amber-300 bg-amber-50 p-4 dark:border-amber-700 dark:bg-amber-900/20">

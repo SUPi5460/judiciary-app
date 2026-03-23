@@ -26,4 +26,5 @@ export interface Session {
   }
   createdAt: string
   updatedAt: string
+  isPremium?: boolean
 }

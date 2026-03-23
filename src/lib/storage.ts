@@ -87,3 +87,15 @@ export async function getSessionIdByJoinCode(code: string): Promise<string | nul
   const kv = await getKv()
   return kv.get<string>(`joincode:${code}`)
 }
+
+export async function savePremiumUser(email: string): Promise<void> {
+  if (isInMemory()) return memSet(`premium:${email}`, true, 999999999)
+  const kv = await getKv()
+  await kv.set(`premium:${email}`, true)
+}
+
+export async function isPremiumUser(email: string): Promise<boolean> {
+  if (isInMemory()) return memGet<boolean>(`premium:${email}`) === true
+  const kv = await getKv()
+  return (await kv.get<boolean>(`premium:${email}`)) === true
+}

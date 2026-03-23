@@ -49,6 +49,8 @@ export async function POST(req: Request) {
     const serverSession = await getServerSession(authOptions)
     const userId = serverSession?.user?.id ?? null
     const userEmail = serverSession?.user?.email ?? null
+    const { isPremiumUser } = await import('@/lib/storage')
+    const isPremium = userEmail ? await isPremiumUser(userEmail) : false
 
     const session: Session = {
       id: uuidv4(),
@@ -69,6 +71,7 @@ export async function POST(req: Request) {
       },
       createdAt: now,
       updatedAt: now,
+      isPremium,
     }
 
     await saveSession(session, userId ? AUTH_SESSION_TTL : undefined)

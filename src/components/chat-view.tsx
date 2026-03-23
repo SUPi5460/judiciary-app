@@ -51,7 +51,7 @@ export function ChatView({
   const otherSpeakerName =
     currentSpeaker === 'A' ? session.nameB : session.nameA
 
-  const turnLimit = getTurnLimit(session?.userEmail ?? null, userId)
+  const turnLimit = getTurnLimit(session?.userEmail ?? null, userId, session?.isPremium)
   const userTurns = messages.filter((m: Message) => m.speaker !== 'AI').length
   const isUnlimited = turnLimit === Infinity
   const remainingTurns = isUnlimited ? Infinity : Math.max(0, turnLimit - userTurns)
@@ -134,9 +134,12 @@ export function ChatView({
                 ログインで20ターンに増加
               </p>
             ) : (
-              <p className="text-xs text-zinc-400 dark:text-zinc-500">
-                プレミアムプラン準備中
-              </p>
+              <a
+                href="/premium"
+                className="text-xs font-medium text-indigo-500 underline underline-offset-2 hover:text-indigo-600 dark:text-indigo-400 dark:hover:text-indigo-300"
+              >
+                プレミアムにアップグレード（¥500）
+              </a>
             )}
           </div>
         ) : (

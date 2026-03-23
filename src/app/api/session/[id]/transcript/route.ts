@@ -22,7 +22,7 @@ export async function POST(
     if (!['A', 'B', 'AI'].includes(speaker)) return badRequest('speaker は A, B, AI のいずれかを指定してください')
     if (content.length > 5000) return badRequest('content が長すぎます')
 
-    const turnLimit = getTurnLimit(session.userEmail, session.userId)
+    const turnLimit = getTurnLimit(session.userEmail, session.userId, session.isPremium)
     const userTurns = session.messages.filter(m => m.speaker !== 'AI').length
     if (speaker !== 'AI' && userTurns >= turnLimit) {
       return badRequest('ターン上限に達しました。')

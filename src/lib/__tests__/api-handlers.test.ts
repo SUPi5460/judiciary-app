@@ -7,6 +7,7 @@ vi.mock('@/lib/storage', () => ({
   deleteSession: vi.fn(),
   saveJoinCodeIndex: vi.fn(),
   getSessionIdByJoinCode: vi.fn(),
+  isPremiumUser: vi.fn().mockResolvedValue(false),
 }))
 
 // Mock join-code

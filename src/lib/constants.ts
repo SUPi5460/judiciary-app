@@ -8,7 +8,12 @@ export const UNLIMITED_EMAILS = [
   'moea000120@gmail.com',
 ]
 
-export function getTurnLimit(userEmail: string | null, userId: string | null): number {
+export function getTurnLimit(
+  userEmail: string | null,
+  userId: string | null,
+  isPremium?: boolean
+): number {
+  if (isPremium) return Infinity
   if (userEmail && UNLIMITED_EMAILS.includes(userEmail)) return Infinity
   if (userId) return AUTH_TURN_LIMIT
   return FREE_TURN_LIMIT

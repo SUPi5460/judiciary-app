@@ -23,7 +23,7 @@ export async function POST(
       return badRequest('AI応答は gathering 状態でのみ可能です')
     }
 
-    const turnLimit = getTurnLimit(session.userEmail, session.userId)
+    const turnLimit = getTurnLimit(session.userEmail, session.userId, session.isPremium)
     const userTurns = session.messages.filter((m: Message) => m.speaker !== 'AI').length
     if (userTurns >= turnLimit) {
       return badRequest('ターン上限に達しました。判定に進んでください。')

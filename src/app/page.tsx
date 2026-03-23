@@ -69,6 +69,12 @@ export default function Home() {
             >
               初めての方はこちら（使い方ガイド）
             </Link>
+            <Link
+              href="/premium"
+              className="mt-1 inline-block text-xs text-amber-300/80 underline underline-offset-2 transition-colors hover:text-amber-200"
+            >
+              プレミアム（¥500で無制限）
+            </Link>
           </div>
         </main>
       </div>

@@ -74,3 +74,15 @@ export async function saveShareReport(id: string, session: Session): Promise<voi
   const kv = await getKv()
   await kv.set(`share:${id}`, session, { ex: SHARE_TTL })
 }
+
+export async function saveJoinCodeIndex(code: string, sessionId: string): Promise<void> {
+  if (isInMemory()) return memSet(`joincode:${code}`, sessionId, SESSION_TTL)
+  const kv = await getKv()
+  await kv.set(`joincode:${code}`, sessionId, { ex: SESSION_TTL })
+}
+
+export async function getSessionIdByJoinCode(code: string): Promise<string | null> {
+  if (isInMemory()) return memGet<string>(`joincode:${code}`)
+  const kv = await getKv()
+  return kv.get<string>(`joincode:${code}`)
+}

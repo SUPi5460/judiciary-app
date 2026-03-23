@@ -5,6 +5,13 @@ vi.mock('@/lib/storage', () => ({
   getSession: vi.fn(),
   saveSession: vi.fn(),
   deleteSession: vi.fn(),
+  saveJoinCodeIndex: vi.fn(),
+  getSessionIdByJoinCode: vi.fn(),
+}))
+
+// Mock join-code
+vi.mock('@/lib/join-code', () => ({
+  generateUniqueJoinCode: vi.fn().mockResolvedValue(null),
 }))
 
 // Mock OpenAI
@@ -30,6 +37,9 @@ function makeSession(overrides: Partial<Session> = {}): Session {
     messages: [],
     summary: null,
     judgment: null,
+    mode: 'single',
+    joinCode: null,
+    participants: { A: 'joined', B: 'joined' },
     createdAt: '2026-01-01T00:00:00.000Z',
     updatedAt: '2026-01-01T00:00:00.000Z',
     ...overrides,

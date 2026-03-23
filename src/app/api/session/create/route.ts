@@ -1,17 +1,19 @@
 import { NextResponse } from 'next/server'
 import { v4 as uuidv4 } from 'uuid'
-import { saveSession } from '@/lib/storage'
+import { saveSession, saveJoinCodeIndex } from '@/lib/storage'
 import { validateName, sanitizeInput } from '@/lib/validation'
 import { badRequest, serverError } from '@/lib/api-error'
-import type { Session, Category } from '@/types/session'
+import { generateUniqueJoinCode } from '@/lib/join-code'
+import type { Session, Category, SessionMode } from '@/types/session'
 
 export async function POST(req: Request) {
   try {
     const body = await req.json()
-    const { nameA, nameB, category } = body as {
+    const { nameA, nameB, category, mode: rawMode } = body as {
       nameA?: string
       nameB?: string
       category?: Category
+      mode?: string
     }
 
     if (!nameA || !nameB) {
@@ -21,6 +23,11 @@ export async function POST(req: Request) {
     const validCategories: Category[] = ['friends', 'couple', 'married', 'other']
     if (category && !validCategories.includes(category)) {
       return badRequest('category は friends, couple, married, other のいずれかを指定してください')
+    }
+
+    const mode: SessionMode = rawMode === 'multi' ? 'multi' : 'single'
+    if (rawMode && rawMode !== 'single' && rawMode !== 'multi') {
+      return badRequest('mode は single または multi を指定してください')
     }
 
     const nameAResult = validateName(nameA)
@@ -34,6 +41,8 @@ export async function POST(req: Request) {
     }
 
     const now = new Date().toISOString()
+    const joinCode = mode === 'multi' ? await generateUniqueJoinCode() : null
+
     const session: Session = {
       id: uuidv4(),
       status: 'gathering',
@@ -43,13 +52,23 @@ export async function POST(req: Request) {
       messages: [],
       summary: null,
       judgment: null,
+      mode,
+      joinCode,
+      participants: {
+        A: 'joined',
+        B: mode === 'multi' ? 'waiting' : 'joined',
+      },
       createdAt: now,
       updatedAt: now,
     }
 
     await saveSession(session)
 
-    return NextResponse.json({ id: session.id }, { status: 201 })
+    if (mode === 'multi' && joinCode) {
+      await saveJoinCodeIndex(joinCode, session.id)
+    }
+
+    return NextResponse.json({ id: session.id, joinCode }, { status: 201 })
   } catch {
     return serverError()
   }

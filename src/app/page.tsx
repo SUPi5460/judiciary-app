@@ -81,6 +81,10 @@ export default function Home() {
         <Link href="/terms" className="hover:text-zinc-600 dark:hover:text-zinc-300">
           利用規約
         </Link>
+        <span className="mx-2">|</span>
+        <Link href="/help" className="hover:text-zinc-600 dark:hover:text-zinc-300">
+          使い方ガイド
+        </Link>
       </footer>
     </div>
   )

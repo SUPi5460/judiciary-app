@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 
+import { AuthButton } from '@/components/auth-button'
 import { HistoryList } from '@/components/history-list'
 
 export default function Home() {
@@ -29,6 +30,11 @@ export default function Home() {
       <div className="relative w-full overflow-hidden bg-gradient-to-br from-indigo-600 via-purple-600 to-indigo-800 dark:from-indigo-900 dark:via-purple-900 dark:to-indigo-950">
         {/* Subtle grid overlay */}
         <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:40px_40px]" />
+
+        {/* Auth Button - Top Right */}
+        <div className="absolute right-4 top-4 z-10">
+          <AuthButton />
+        </div>
 
         <main className="relative flex w-full max-w-lg mx-auto flex-col items-center gap-8 px-6 py-20">
           {/* Animated Scale Icon */}

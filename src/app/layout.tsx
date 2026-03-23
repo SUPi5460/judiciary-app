@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Libre_Baskerville } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { ServiceWorkerRegister } from "@/components/sw-register";
+import { AuthSessionProvider } from "@/components/session-provider";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -67,9 +68,11 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/icon-192.png" />
       </head>
       <body className="min-h-full flex flex-col">
-        <ServiceWorkerRegister />
-        <Analytics />
-        {children}
+        <AuthSessionProvider>
+          <ServiceWorkerRegister />
+          <Analytics />
+          {children}
+        </AuthSessionProvider>
       </body>
     </html>
   );

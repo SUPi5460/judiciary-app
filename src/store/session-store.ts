@@ -76,20 +76,29 @@ export const useSessionStore = create<SessionState>((set, get) => ({
     }
     set({ isLoading: true, error: null })
     try {
-      await fetchJson(`/api/session/${session.id}/message`, {
-        method: 'POST',
-        body: JSON.stringify({ speaker: currentSpeaker, content }),
+      // 1. ユーザーメッセージ送信
+      const msgResult = await fetchJson<{ messages: Session['messages'] }>(
+        `/api/session/${session.id}/message`,
+        {
+          method: 'POST',
+          body: JSON.stringify({ speaker: currentSpeaker, content }),
+        },
+      )
+      // メッセージ一覧を即座に反映
+      set((state) => {
+        if (!state.session) return {}
+        return { session: { ...state.session, messages: msgResult.messages } }
       })
-      const aiResponse = await fetchJson<{ messages: Session['messages'] }>(
+
+      // 2. AI応答を取得
+      await fetchJson<{ message: unknown }>(
         `/api/session/${session.id}/ai-respond`,
         { method: 'POST' },
       )
-      set((state) => {
-        if (!state.session) {
-          return {}
-        }
-        return { session: { ...state.session, messages: aiResponse.messages } }
-      })
+
+      // 3. セッション全体を再取得して確実に同期
+      const updated = await fetchJson<Session>(`/api/session/${session.id}`)
+      set({ session: updated })
     } catch (error) {
       set({ error: error instanceof Error ? error.message : 'Failed to add message' })
     } finally {

@@ -69,9 +69,16 @@ describe('sessionStore', () => {
     const userMsg = { id: '1', speaker: 'A' as const, content: 'テスト', timestamp: '2026-01-01' }
     const aiMsg = { id: '2', speaker: 'AI' as const, content: 'AI応答', timestamp: '2026-01-01' }
 
+    const fullSession = {
+      id: 'test-id', status: 'gathering', nameA: '太郎', nameB: '花子',
+      messages: [userMsg, aiMsg], category: 'couple', summary: null, judgment: null,
+      createdAt: '2026-01-01', updatedAt: '2026-01-01',
+    }
+
     vi.mocked(fetch)
-      .mockResolvedValueOnce(new Response(JSON.stringify({ messages: [userMsg] })))
-      .mockResolvedValueOnce(new Response(JSON.stringify({ message: aiMsg, messages: [userMsg, aiMsg] })))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ messages: [userMsg] })))       // message POST
+      .mockResolvedValueOnce(new Response(JSON.stringify({ message: aiMsg })))             // ai-respond
+      .mockResolvedValueOnce(new Response(JSON.stringify(fullSession)))                    // session re-fetch
 
     await useSessionStore.getState().addMessage('テスト')
     const state = useSessionStore.getState()

@@ -4,8 +4,10 @@ const SESSION_TTL = 86400 // 24h
 const SHARE_TTL = 604800  // 7 days
 
 // In-memory store for local development (no Vercel KV needed)
-// In production, replace with @vercel/kv
-const useInMemory = !process.env.KV_REST_API_URL
+// Evaluated per-call to handle env vars loaded after module init
+function isInMemory(): boolean {
+  return !process.env.KV_REST_API_URL
+}
 
 // Use globalThis to persist across hot reloads in dev mode
 const globalKey = '__judiciary_mem_store__' as const
@@ -44,31 +46,31 @@ async function getKv() {
 }
 
 export async function getSession(id: string): Promise<Session | null> {
-  if (useInMemory) return memGet<Session>(`session:${id}`)
+  if (isInMemory()) return memGet<Session>(`session:${id}`)
   const kv = await getKv()
   return kv.get<Session>(`session:${id}`)
 }
 
 export async function saveSession(session: Session): Promise<void> {
-  if (useInMemory) return memSet(`session:${session.id}`, session, SESSION_TTL)
+  if (isInMemory()) return memSet(`session:${session.id}`, session, SESSION_TTL)
   const kv = await getKv()
   await kv.set(`session:${session.id}`, session, { ex: SESSION_TTL })
 }
 
 export async function deleteSession(id: string): Promise<void> {
-  if (useInMemory) return memDel(`session:${id}`)
+  if (isInMemory()) return memDel(`session:${id}`)
   const kv = await getKv()
   await kv.del(`session:${id}`)
 }
 
 export async function getShareReport(id: string): Promise<Session | null> {
-  if (useInMemory) return memGet<Session>(`share:${id}`)
+  if (isInMemory()) return memGet<Session>(`share:${id}`)
   const kv = await getKv()
   return kv.get<Session>(`share:${id}`)
 }
 
 export async function saveShareReport(id: string, session: Session): Promise<void> {
-  if (useInMemory) return memSet(`share:${id}`, session, SHARE_TTL)
+  if (isInMemory()) return memSet(`share:${id}`, session, SHARE_TTL)
   const kv = await getKv()
   await kv.set(`share:${id}`, session, { ex: SHARE_TTL })
 }

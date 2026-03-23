@@ -7,24 +7,35 @@ const SHARE_TTL = 604800  // 7 days
 // In production, replace with @vercel/kv
 const useInMemory = !process.env.KV_REST_API_URL
 
-const memoryStore = new Map<string, { value: unknown; expiresAt: number }>()
+// Use globalThis to persist across hot reloads in dev mode
+const globalKey = '__judiciary_mem_store__' as const
+type MemEntry = { value: unknown; expiresAt: number }
+
+function getMemoryStore(): Map<string, MemEntry> {
+  const g = globalThis as Record<string, unknown>
+  if (!g[globalKey]) {
+    g[globalKey] = new Map<string, MemEntry>()
+  }
+  return g[globalKey] as Map<string, MemEntry>
+}
 
 function memGet<T>(key: string): T | null {
-  const entry = memoryStore.get(key)
+  const store = getMemoryStore()
+  const entry = store.get(key)
   if (!entry) return null
   if (Date.now() > entry.expiresAt) {
-    memoryStore.delete(key)
+    store.delete(key)
     return null
   }
   return entry.value as T
 }
 
 function memSet(key: string, value: unknown, ttl: number): void {
-  memoryStore.set(key, { value, expiresAt: Date.now() + ttl * 1000 })
+  getMemoryStore().set(key, { value, expiresAt: Date.now() + ttl * 1000 })
 }
 
 function memDel(key: string): void {
-  memoryStore.delete(key)
+  getMemoryStore().delete(key)
 }
 
 async function getKv() {

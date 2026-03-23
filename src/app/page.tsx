@@ -63,6 +63,12 @@ export default function Home() {
             <p className="mt-3 text-xs text-white/60">
               AIが公平に判定します
             </p>
+            <Link
+              href="/help"
+              className="mt-2 inline-block text-xs text-white/50 underline underline-offset-2 transition-colors hover:text-white/80"
+            >
+              初めての方はこちら（使い方ガイド）
+            </Link>
           </div>
         </main>
       </div>

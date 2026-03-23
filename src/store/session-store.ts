@@ -1,14 +1,19 @@
 import { create } from 'zustand'
 
-import type { Category, Session, Speaker } from '@/types/session'
+import type { Category, Session, SessionMode, Speaker } from '@/types/session'
+import { getSpeakerForSession, setSpeakerForSession } from '@/lib/speaker-storage'
 
 interface SessionState {
   session: Session | null
   currentSpeaker: Speaker
   isLoading: boolean
   error: string | null
+  pollingInterval: ReturnType<typeof setInterval> | null
 
-  createSession: (nameA: string, nameB: string, category?: Category) => Promise<void>
+  createSession: (nameA: string, nameB: string, category?: Category, mode?: SessionMode) => Promise<void>
+  joinSession: (code: string) => Promise<void>
+  startPolling: () => void
+  stopPolling: () => void
   addMessage: (content: string) => Promise<void>
   switchSpeaker: () => void
   finalize: () => Promise<void>
@@ -53,16 +58,18 @@ export const useSessionStore = create<SessionState>((set, get) => ({
   currentSpeaker: 'A',
   isLoading: false,
   error: null,
+  pollingInterval: null,
 
-  createSession: async (nameA, nameB, category) => {
+  createSession: async (nameA, nameB, category, mode) => {
     set({ isLoading: true, error: null })
     try {
       const createResponse = await fetchJson<{ id: string }>('/api/session/create', {
         method: 'POST',
-        body: JSON.stringify({ nameA, nameB, category }),
+        body: JSON.stringify({ nameA, nameB, category, mode }),
       })
       const session = await fetchJson<Session>(`/api/session/${createResponse.id}`)
       set({ session })
+      setSpeakerForSession(session.id, 'A')
     } catch (error) {
       set({ error: error instanceof Error ? error.message : 'Failed to create session' })
     } finally {
@@ -70,11 +77,67 @@ export const useSessionStore = create<SessionState>((set, get) => ({
     }
   },
 
+  joinSession: async (code: string) => {
+    set({ isLoading: true, error: null })
+    try {
+      const lookup = await fetchJson<{ sessionId: string; nameA: string; nameB: string }>(
+        `/api/session/join/${code}`,
+      )
+      await fetchJson<{ status: string }>(
+        `/api/session/${lookup.sessionId}/join`,
+        { method: 'POST' },
+      )
+      const session = await fetchJson<Session>(`/api/session/${lookup.sessionId}`)
+      set({ session })
+      setSpeakerForSession(lookup.sessionId, 'B')
+    } catch (error) {
+      set({ error: error instanceof Error ? error.message : 'Failed to join session' })
+    } finally {
+      set({ isLoading: false })
+    }
+  },
+
+  startPolling: () => {
+    const { session, pollingInterval } = get()
+    if (!session || pollingInterval) return
+    let lastUpdatedAt = session.updatedAt
+    const interval = setInterval(async () => {
+      try {
+        const { session: current } = get()
+        if (!current) return
+        const poll = await fetchJson<{
+          messageCount: number
+          participants: { A: string; B: string }
+          status: string
+          updatedAt: string
+        }>(`/api/session/${current.id}/poll`)
+        if (poll.updatedAt !== lastUpdatedAt) {
+          lastUpdatedAt = poll.updatedAt
+          const updated = await fetchJson<Session>(`/api/session/${current.id}`)
+          set({ session: updated })
+        }
+      } catch {
+        // Polling error - ignore and retry next interval
+      }
+    }, 3000)
+    set({ pollingInterval: interval })
+  },
+
+  stopPolling: () => {
+    const { pollingInterval } = get()
+    if (pollingInterval) clearInterval(pollingInterval)
+    set({ pollingInterval: null })
+  },
+
   addMessage: async (content) => {
     const { session, currentSpeaker } = get()
     if (!session) {
       return
     }
+    // Multi mode: use fixed speaker from localStorage
+    const speaker = session.mode === 'multi'
+      ? getSpeakerForSession(session.id)
+      : currentSpeaker
     set({ isLoading: true, error: null })
     try {
       // 1. ユーザーメッセージ送信
@@ -82,7 +145,7 @@ export const useSessionStore = create<SessionState>((set, get) => ({
         `/api/session/${session.id}/message`,
         {
           method: 'POST',
-          body: JSON.stringify({ speaker: currentSpeaker, content }),
+          body: JSON.stringify({ speaker, content }),
         },
       )
       // メッセージ一覧を即座に反映
@@ -222,11 +285,13 @@ export const useSessionStore = create<SessionState>((set, get) => ({
   },
 
   reset: () => {
+    get().stopPolling()
     set({
       session: null,
       currentSpeaker: 'A',
       isLoading: false,
       error: null,
+      pollingInterval: null,
     })
   },
 }))

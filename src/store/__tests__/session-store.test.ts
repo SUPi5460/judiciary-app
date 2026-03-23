@@ -99,12 +99,15 @@ describe('sessionStore', () => {
       },
     })
 
+    const finalizedSession = {
+      id: 'test-id', status: 'ready_for_judge', nameA: '太郎', nameB: '花子',
+      messages: [], category: 'couple', summary: 'まとめ', judgment: null,
+      createdAt: '2026-01-01', updatedAt: '2026-01-01',
+    }
+
     vi.mocked(fetch)
-      .mockResolvedValueOnce(new Response(JSON.stringify({
-        id: 'test-id', status: 'ready_for_judge', nameA: '太郎', nameB: '花子',
-        messages: [], category: 'couple', summary: 'まとめ', judgment: null,
-        createdAt: '2026-01-01', updatedAt: '2026-01-01',
-      })))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ status: 'ready_for_judge' })))  // finalize
+      .mockResolvedValueOnce(new Response(JSON.stringify(finalizedSession)))                // re-fetch
 
     await useSessionStore.getState().finalize()
     const state = useSessionStore.getState()
@@ -126,12 +129,15 @@ describe('sessionStore', () => {
       createdAt: '2026-01-01',
     }
 
+    const judgedSession = {
+      id: 'test-id', status: 'judged', nameA: '太郎', nameB: '花子',
+      messages: [], category: 'couple', summary: 'まとめ', judgment,
+      createdAt: '2026-01-01', updatedAt: '2026-01-01',
+    }
+
     vi.mocked(fetch)
-      .mockResolvedValueOnce(new Response(JSON.stringify({
-        id: 'test-id', status: 'judged', nameA: '太郎', nameB: '花子',
-        messages: [], category: 'couple', summary: 'まとめ', judgment,
-        createdAt: '2026-01-01', updatedAt: '2026-01-01',
-      })))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ judgment })))     // judge
+      .mockResolvedValueOnce(new Response(JSON.stringify(judgedSession)))    // re-fetch
 
     // Mock localStorage
     const mockStorage: Record<string, string> = {}

@@ -119,10 +119,12 @@ export const useSessionStore = create<SessionState>((set, get) => ({
       if (!session) {
         return
       }
-      const updatedSession = await fetchJson<Session>(
+      // /api/finalize returns { status } only, so re-fetch full session
+      await fetchJson<{ status: string }>(
         `/api/session/${session.id}/finalize`,
         { method: 'POST' },
       )
+      const updatedSession = await fetchJson<Session>(`/api/session/${session.id}`)
       set({ session: updatedSession })
     } catch (error) {
       set({ error: error instanceof Error ? error.message : 'Failed to finalize session' })
@@ -138,10 +140,12 @@ export const useSessionStore = create<SessionState>((set, get) => ({
       if (!session) {
         return
       }
-      const updatedSession = await fetchJson<Session>('/api/judge', {
+      // /api/judge returns { judgment } only, so re-fetch full session after
+      await fetchJson<{ judgment: unknown }>('/api/judge', {
         method: 'POST',
         body: JSON.stringify({ sessionId: session.id }),
       })
+      const updatedSession = await fetchJson<Session>(`/api/session/${session.id}`)
       set({ session: updatedSession })
 
       const history = JSON.parse(localStorage.getItem('judiciary-history') || '[]')

@@ -12,7 +12,7 @@ export default function ResultPage() {
   const router = useRouter()
   const id = params.id as string
 
-  const { session, isLoading, error, loadSession, requestJudgment, generateShareLink, reopenSession } =
+  const { session, isLoading, error, loadSession, generateShareLink, reopenSession } =
     useSessionStore()
 
   const [shareLoading, setShareLoading] = useState(false)
@@ -23,12 +23,8 @@ export default function ResultPage() {
     loadSession(id)
   }, [id, loadSession])
 
-  useEffect(() => {
-    if (!session) return
-    if (session.status === 'ready_for_judge') {
-      requestJudgment()
-    }
-  }, [session?.status, session?.id, requestJudgment])
+  // 判定は対話ページ（handleFinalize）で実行済み
+  // 結果ページは表示のみ
 
   const showToast = useCallback((message: string) => {
     setToast(message)

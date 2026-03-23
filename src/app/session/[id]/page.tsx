@@ -27,6 +27,7 @@ export default function SessionPage() {
     addMessage,
     switchSpeaker,
     finalize,
+    requestJudgment,
   } = useSessionStore()
 
   const sessionId = useMemo(() => {
@@ -74,12 +75,30 @@ export default function SessionPage() {
     }
   }, [elapsedSeconds, finalize, session])
 
+  const [isJudging, setIsJudging] = useState(false)
+
   const handleFinalize = async () => {
-    if (!sessionId) {
-      return
+    if (!sessionId) return
+    setIsJudging(true)
+    try {
+      await finalize()
+      await requestJudgment()
+      router.push(`/session/${sessionId}/result`)
+    } catch {
+      setIsJudging(false)
     }
-    await finalize()
-    router.push(`/session/${sessionId}/result`)
+  }
+
+  if (isJudging) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-zinc-50">
+        <div className="text-center space-y-4">
+          <div className="text-4xl animate-pulse">⚖️</div>
+          <p className="text-zinc-600 font-medium">判定中...</p>
+          <p className="text-sm text-zinc-400">AIが公平に判定しています</p>
+        </div>
+      </div>
+    )
   }
 
   if (isLoading && !session) {

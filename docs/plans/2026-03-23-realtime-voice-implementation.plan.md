@@ -4,7 +4,9 @@
 
 **Goal:** マルチデバイスモード時にOpenAI Realtime API（WebRTC）でAIと音声リアルタイム対話する
 
-**Architecture:** ブラウザがOpenAI Realtime APIにWebRTCで直接接続。サーバーはephemeral token発行のみ。AIの発言transcriptを既存message APIで保存し、相手デバイスにポーリング同期。テキストモードといつでも切替可能。
+**Architecture:** ブラウザがOpenAI Realtime APIにWebRTCで直接接続。サーバーはephemeral token発行 + transcript保存用APIを提供。AIの発言transcriptは専用エンドポイント（speaker制限なし）で保存し、相手デバイスにポーリング同期。テキストモードといつでも切替可能。
+
+**重要な制約:** 既存の `POST /api/session/[id]/message` は `speaker:'AI'` をクライアントから拒否する設計。Realtime APIのtranscript保存には専用の `/api/session/[id]/transcript` エンドポイントを新設する。
 
 **Tech Stack:** OpenAI Realtime API, WebRTC (RTCPeerConnection), gpt-realtime model
 
@@ -32,6 +34,12 @@
 ```typescript
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
+vi.mock('@/lib/storage', () => ({
+  getSession: vi.fn(),
+}))
+
+import { getSession } from '@/lib/storage'
+
 // Mock global fetch for OpenAI API call
 const mockFetch = vi.fn()
 vi.stubGlobal('fetch', mockFetch)
@@ -40,6 +48,12 @@ describe('POST /api/realtime/token', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     process.env.OPENAI_API_KEY = 'test-key'
+    vi.mocked(getSession).mockResolvedValue({
+      id: 'test-session', status: 'gathering', category: 'couple',
+      nameA: '太郎', nameB: '花子', messages: [], summary: null, judgment: null,
+      mode: 'multi', joinCode: 'ABC123', participants: { A: 'joined', B: 'joined' },
+      createdAt: '2026-01-01', updatedAt: '2026-01-01',
+    })
   })
 
   it('returns ephemeral token with session config', async () => {
@@ -48,7 +62,6 @@ describe('POST /api/realtime/token', () => {
       json: async () => ({ value: 'eph-token-123', expires_at: 1234567890 }),
     })
 
-    // Import and call the route handler
     const { POST } = await import('@/app/api/realtime/token/route')
     const req = new Request('http://localhost/api/realtime/token', {
       method: 'POST',
@@ -62,6 +75,17 @@ describe('POST /api/realtime/token', () => {
       'https://api.openai.com/v1/realtime/client_secrets',
       expect.objectContaining({ method: 'POST' })
     )
+  })
+
+  it('returns 404 for missing session', async () => {
+    vi.mocked(getSession).mockResolvedValue(null)
+    const { POST } = await import('@/app/api/realtime/token/route')
+    const req = new Request('http://localhost/api/realtime/token', {
+      method: 'POST',
+      body: JSON.stringify({ sessionId: 'nonexistent' }),
+    })
+    const res = await POST(req)
+    expect(res.status).toBe(404)
   })
 })
 ```
@@ -103,6 +127,12 @@ export async function POST(req: NextRequest) {
           audio: {
             output: { voice: 'marin' },
           },
+          input_audio_transcription: {
+            model: 'gpt-4o-mini-transcribe',
+          },
+          turn_detection: {
+            type: 'semantic_vad',
+          },
         },
       }),
     })
@@ -133,7 +163,72 @@ Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
 
 ---
 
-## Task 2: WebRTC接続フック
+## Task 2: Transcript保存API
+
+**What:** Realtime APIのtranscript（AI/ユーザーの発言テキスト）を保存する専用エンドポイントを作成
+
+**Where:**
+- Create: `src/app/api/session/[id]/transcript/route.ts`
+
+**How:** 既存のmessage APIと似た構造だが、speaker制限なし（'A', 'B', 'AI' すべて受付）。Realtime APIからのtranscript保存専用。
+
+**Why:** 既存の `/api/session/[id]/message` は `speaker:'AI'` をクライアントから拒否する設計。Realtime APIのtranscriptはクライアント側で受信するため、AI発言もクライアントから保存する必要がある。
+
+**Verify:** `npm run test:run`
+
+---
+
+**Step 1: 実装**
+
+```typescript
+import { NextResponse } from 'next/server'
+import { v4 as uuidv4 } from 'uuid'
+import { getSession, saveSession } from '@/lib/storage'
+import { badRequest, notFound, serverError } from '@/lib/api-error'
+import type { Speaker } from '@/types/session'
+
+export async function POST(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params
+    const session = await getSession(id)
+    if (!session) return notFound('セッションが見つかりません')
+    if (session.status !== 'gathering') return badRequest('gathering状態でのみ追加可能です')
+
+    const { speaker, content } = await req.json() as { speaker?: Speaker | 'AI'; content?: string }
+    if (!speaker || !content) return badRequest('speaker と content は必須です')
+    if (!['A', 'B', 'AI'].includes(speaker)) return badRequest('speaker は A, B, AI のいずれかを指定してください')
+
+    session.messages.push({
+      id: uuidv4(),
+      speaker,
+      content: content.trim(),
+      timestamp: new Date().toISOString(),
+    })
+    session.updatedAt = new Date().toISOString()
+    await saveSession(session)
+
+    return NextResponse.json({ ok: true })
+  } catch {
+    return serverError()
+  }
+}
+```
+
+**Step 2: Commit**
+
+```bash
+git add src/app/api/session/[id]/transcript/
+git commit -m "feat: add transcript API for Realtime voice messages
+
+Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
+```
+
+---
+
+## Task 3: WebRTC接続フック
 
 **What:** OpenAI Realtime APIへのWebRTC接続を管理するカスタムフックを作成
 
@@ -251,13 +346,21 @@ export function useRealtime({
         }
       })
 
-      // 6. SDP exchange
+      // 6. SDP exchange — wait for ICE gathering to complete
       const offer = await pc.createOffer()
       await pc.setLocalDescription(offer)
 
+      // Wait for ICE candidates to be gathered
+      await new Promise<void>((resolve) => {
+        if (pc.iceGatheringState === 'complete') return resolve()
+        pc.onicegatheringstatechange = () => {
+          if (pc.iceGatheringState === 'complete') resolve()
+        }
+      })
+
       const sdpRes = await fetch('https://api.openai.com/v1/realtime/calls', {
         method: 'POST',
-        body: offer.sdp,
+        body: pc.localDescription?.sdp,
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/sdp',
@@ -296,7 +399,7 @@ Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
 
 ---
 
-## Task 3: VoiceCallコンポーネント
+## Task 4: VoiceCallコンポーネント
 
 **What:** 音声通話中のUIコンポーネントを作成
 
@@ -340,11 +443,9 @@ export function VoiceCall({ sessionId, onSwitchToText }: VoiceCallProps) {
 
   const handleTranscriptDone = useCallback((text: string, role: 'user' | 'assistant') => {
     if (!text.trim()) return
-    // Save transcript as message via existing API
-    // For user: save with their speaker identity
-    // For assistant: save as AI message
+    // Save transcript via dedicated transcript API (allows AI speaker)
     const speakerLabel = role === 'assistant' ? 'AI' : speaker
-    fetch(`/api/session/${sessionId}/message`, {
+    fetch(`/api/session/${sessionId}/transcript`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ speaker: speakerLabel, content: text.trim() }),
@@ -455,7 +556,7 @@ Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
 
 ---
 
-## Task 4: 対話画面に音声モード切替を追加
+## Task 5: 対話画面に音声モード切替を追加
 
 **What:** マルチデバイスモードの対話画面に「🎙️ 音声で話す」ボタンとVoiceCall表示を追加
 
@@ -506,7 +607,7 @@ Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
 
 ---
 
-## Task 5: 最終整理・デプロイ
+## Task 6: 最終整理・デプロイ
 
 **What:** テスト全パス確認、ビルド確認、デプロイ
 
@@ -546,10 +647,11 @@ git push origin main
 
 ```
 Task 1 (Token API)
-  └── Task 2 (WebRTC Hook)
-        └── Task 3 (VoiceCall UI)
-              └── Task 4 (Chat画面統合)
-                    └── Task 5 (デプロイ)
+  └── Task 2 (Transcript API)
+        └── Task 3 (WebRTC Hook)
+              └── Task 4 (VoiceCall UI)
+                    └── Task 5 (Chat画面統合)
+                          └── Task 6 (デプロイ)
 ```
 
 すべて順次依存。並列実行不可。

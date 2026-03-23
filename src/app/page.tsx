@@ -1,11 +1,25 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { useSession } from 'next-auth/react'
 
 import { AuthButton } from '@/components/auth-button'
 import { HistoryList } from '@/components/history-list'
 
 export default function Home() {
+  const { data: sessionData } = useSession()
+  const [isPremium, setIsPremium] = useState(false)
+
+  useEffect(() => {
+    if (sessionData?.user?.email) {
+      fetch('/api/premium/status')
+        .then(r => r.json())
+        .then(d => setIsPremium(d.isPremium))
+        .catch(() => {})
+    }
+  }, [sessionData?.user?.email])
+
   return (
     <div className="flex min-h-full flex-col items-center font-sans">
       <script
@@ -69,12 +83,18 @@ export default function Home() {
             >
               初めての方はこちら（使い方ガイド）
             </Link>
-            <Link
-              href="/premium"
-              className="mt-1 inline-block text-xs text-amber-300/80 underline underline-offset-2 transition-colors hover:text-amber-200"
-            >
-              プレミアム（¥500で無制限）
-            </Link>
+            {isPremium ? (
+              <span className="mt-1 inline-block text-xs text-emerald-300">
+                ✓ プレミアム
+              </span>
+            ) : (
+              <Link
+                href="/premium"
+                className="mt-1 inline-block text-xs text-amber-300/80 underline underline-offset-2 transition-colors hover:text-amber-200"
+              >
+                プレミアム（¥500で無制限）
+              </Link>
+            )}
           </div>
         </main>
       </div>

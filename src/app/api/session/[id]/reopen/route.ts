@@ -21,6 +21,7 @@ export async function POST(
 
     session.status = transition(session.status, 'reopen')
     session.judgment = null
+    session.summary = null
     session.updatedAt = new Date().toISOString()
 
     await saveSession(session)

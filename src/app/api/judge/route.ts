@@ -11,6 +11,8 @@ export async function POST(req: NextRequest) {
   const session = await getSession(sessionId)
   if (!session) return notFound('セッションが見つかりません')
 
+  const previousStatus = session.status
+
   try {
     session.status = transition(session.status, 'start_judge')
     await saveSession(session)
@@ -31,7 +33,6 @@ export async function POST(req: NextRequest) {
 
     session.judgment = { ...judgment, createdAt: new Date().toISOString() }
     session.summary = summary
-    // メッセージは保持（議論再開時に必要）
     session.status = transition(session.status, 'complete_judge')
     session.updatedAt = new Date().toISOString()
     await saveSession(session)
@@ -41,7 +42,17 @@ export async function POST(req: NextRequest) {
     if (error instanceof Error && error.message.startsWith('Invalid transition')) {
       return badRequest('この状態では判定を実行できません')
     }
+
+    // LLM失敗時: ステータスをロールバック
     console.error('Judge API error:', error)
+    try {
+      session.status = previousStatus
+      session.updatedAt = new Date().toISOString()
+      await saveSession(session)
+    } catch (rollbackError) {
+      console.error('Failed to rollback session status:', rollbackError)
+    }
+
     return serverError('判定処理中にエラーが発生しました')
   }
 }

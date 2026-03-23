@@ -16,7 +16,12 @@ export async function POST(req: NextRequest) {
 
   try {
     const shareId = uuidv4()
-    await saveShareReport(shareId, session)
+    // 共有レポートには判定結果のみ保存（生メッセージはプライバシー保護のため除外）
+    const shareData = {
+      ...session,
+      messages: [],
+    }
+    await saveShareReport(shareId, shareData)
 
     return NextResponse.json({ shareId, shareUrl: `/share/${shareId}` })
   } catch (error) {

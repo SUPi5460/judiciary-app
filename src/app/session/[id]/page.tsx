@@ -5,6 +5,8 @@ import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import { ChatView } from '@/components/chat-view'
 import { useSessionStore } from '@/store/session-store'
+import { getSpeakerForSession } from '@/lib/speaker-storage'
+import type { SessionMode } from '@/types/session'
 
 const formatElapsed = (totalSeconds: number) => {
   const minutes = Math.floor(totalSeconds / 60)
@@ -28,6 +30,8 @@ export default function SessionPage() {
     switchSpeaker,
     finalize,
     requestJudgment,
+    startPolling,
+    stopPolling,
   } = useSessionStore()
 
   const sessionId = useMemo(() => {
@@ -43,6 +47,25 @@ export default function SessionPage() {
       loadSession(sessionId)
     }
   }, [loadSession, sessionId])
+
+  // Multi-device: start polling and set fixed speaker
+  const isMulti = session?.mode === 'multi'
+  const mySpeaker = sessionId ? getSpeakerForSession(sessionId) : 'A'
+
+  useEffect(() => {
+    if (isMulti) {
+      startPolling()
+      return () => {
+        stopPolling()
+      }
+    }
+  }, [isMulti, startPolling, stopPolling])
+
+  // Determine effective speaker for multi mode
+  const effectiveSpeaker = isMulti ? mySpeaker : currentSpeaker
+  const myName = isMulti
+    ? (mySpeaker === 'A' ? session?.nameA : session?.nameB)
+    : undefined
 
   useEffect(() => {
     if (!session?.createdAt) {
@@ -142,8 +165,9 @@ export default function SessionPage() {
       <div className="flex-1 overflow-hidden">
         <ChatView
           session={session}
-          currentSpeaker={currentSpeaker}
+          currentSpeaker={effectiveSpeaker}
           isLoading={isLoading}
+          mode={session.mode}
           onSendMessage={addMessage}
           onSwitchSpeaker={switchSpeaker}
           onFinalize={handleFinalize}

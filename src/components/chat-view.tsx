@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react'
 import type { Message } from '@/types/message'
-import type { Session, Speaker } from '@/types/session'
+import type { Session, SessionMode, Speaker } from '@/types/session'
 import { MessageBubble } from '@/components/message-bubble'
 import { SpeakerIndicator } from '@/components/speaker-indicator'
 import { TextInput } from '@/components/text-input'
@@ -11,6 +11,7 @@ interface ChatViewProps {
   session: Session
   currentSpeaker: Speaker
   isLoading: boolean
+  mode: SessionMode
   onSendMessage: (content: string) => void
   onSwitchSpeaker: () => void
   onFinalize: () => void
@@ -20,6 +21,7 @@ export function ChatView({
   session,
   currentSpeaker,
   isLoading,
+  mode,
   onSendMessage,
   onSwitchSpeaker,
   onFinalize,
@@ -49,11 +51,17 @@ export function ChatView({
 
   return (
     <div className="flex h-full flex-col gap-4">
-      <SpeakerIndicator
-        currentSpeaker={currentSpeaker}
-        nameA={session.nameA}
-        nameB={session.nameB}
-      />
+      {mode === 'multi' ? (
+        <div className="rounded-lg bg-green-100 px-4 py-2 text-center font-semibold text-green-800 dark:bg-green-900/30 dark:text-green-300">
+          あなたは{currentSpeakerName}です
+        </div>
+      ) : (
+        <SpeakerIndicator
+          currentSpeaker={currentSpeaker}
+          nameA={session.nameA}
+          nameB={session.nameB}
+        />
+      )}
       <div className="flex-1 overflow-y-auto p-4">
         <div className="flex flex-col gap-3">
           {messages.map((message) => (
@@ -74,18 +82,20 @@ export function ChatView({
           currentSpeakerName={currentSpeakerName}
         />
         <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={onSwitchSpeaker}
-            className={`flex-1 rounded-lg px-4 py-2.5 text-sm font-medium text-white transition-colors ${
-              currentSpeaker === 'A'
-                ? 'bg-red-500 hover:bg-red-600'
-                : 'bg-blue-500 hover:bg-blue-600'
-            }`}
-            disabled={isLoading}
-          >
-            {otherSpeakerName}さんに交代
-          </button>
+          {mode === 'single' && (
+            <button
+              type="button"
+              onClick={onSwitchSpeaker}
+              className={`flex-1 rounded-lg px-4 py-2.5 text-sm font-medium text-white transition-colors ${
+                currentSpeaker === 'A'
+                  ? 'bg-red-500 hover:bg-red-600'
+                  : 'bg-blue-500 hover:bg-blue-600'
+              }`}
+              disabled={isLoading}
+            >
+              {otherSpeakerName}さんに交代
+            </button>
+          )}
           {canFinalize && (
             <button
               type="button"
